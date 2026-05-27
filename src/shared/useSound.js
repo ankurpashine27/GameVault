@@ -113,6 +113,34 @@ function tttTimerTick(ctx, t) {
   osc(ctx, 'sine', 1100, t, t + 0.035, 0.12)
 }
 
+// ── Nexus sounds ─────────────────────────────────────────────────────────────
+
+// Correct guess: bright ascending arpeggio C5→E5→G5
+function nexusCorrect(ctx, t) {
+  ;[523, 659, 784].forEach((f, i) => {
+    const s = t + i * 0.07
+    osc(ctx, 'sine', f, s, s + 0.2, 0.22)
+  })
+}
+
+// Wrong guess: dull descending buzz
+function nexusWrong(ctx, t) {
+  osc(ctx, 'sawtooth', 200, t, t + 0.15, 0.2, 100)
+}
+
+// Hint reveal: soft rising whoosh
+function nexusReveal(ctx, t) {
+  osc(ctx, 'sine', 400, t, t + 0.12, 0.12, 800)
+}
+
+// Game over: descending closing motif A4→F4→D4
+function nexusGameOver(ctx, t) {
+  ;[440, 349, 294].forEach((f, i) => {
+    const s = t + i * 0.18
+    osc(ctx, 'sine', f, s, s + 0.5, 0.18)
+  })
+}
+
 // ── Dispatch table ────────────────────────────────────────────────────────────
 
 const SOUNDS = {
@@ -127,6 +155,10 @@ const SOUNDS = {
   'ttt:draw':         tttDraw,
   'ttt:powerUpArm':   tttPowerUpArm,
   'ttt:timerTick':    tttTimerTick,
+  'nexus:correct':    nexusCorrect,
+  'nexus:wrong':      nexusWrong,
+  'nexus:reveal':     nexusReveal,
+  'nexus:gameover':   nexusGameOver,
 }
 
 // ── Hook ─────────────────────────────────────────────────────────────────────

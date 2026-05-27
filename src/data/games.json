@@ -26,5 +26,19 @@
     "releaseDate": "2024-02-10",
     "rating": 4.6,
     "featured": false
+  },
+  {
+    "id": "nexus",
+    "title": "Nexus",
+    "description": "Guess the hidden category from 5 mystery clues. The fewer hints you need, the higher you score.",
+    "longDescription": "Nexus reveals clue words one at a time — each one pointing toward a hidden category. Guess correctly on the first hint for the maximum score of 500 points. Six modes including Daily challenge, Streak, and Time Attack keep gameplay fresh.",
+    "thumbnail": null,
+    "color": "from-violet-600 to-indigo-900",
+    "tags": ["word", "puzzle", "daily", "strategy"],
+    "players": "1",
+    "difficulty": "Easy to Hard",
+    "releaseDate": "2025-01-01",
+    "rating": 4.9,
+    "featured": false
   }
 ]

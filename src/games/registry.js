@@ -34,10 +34,12 @@
 
 import Snake from './snake/index.jsx'
 import TicTacToe from './tictactoe/index.jsx'
+import Nexus from './nexus/index.jsx'
 
 export const gameRegistry = {
   'snake':     Snake,
   'tictactoe': TicTacToe,
+  'nexus':     Nexus,
   // Uncomment as games are implemented:
   // 'tetris':       Tetris,
   // 'flappy-bird':  FlappyBird,
