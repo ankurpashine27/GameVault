@@ -1,29 +1,31 @@
-import { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
-import Navbar from '@/components/Navbar'
-import Home from '@/pages/Home'
-import GamePage from '@/pages/GamePage'
+import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Home from "@/pages/Home";
+import GamePage from "@/pages/GamePage";
+
+import { Analytics } from "@vercel/analytics/react";
 
 export default function App() {
   const [favourites, setFavourites] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('gamevault_favourites')) || []
+      return JSON.parse(localStorage.getItem("gamevault_favourites")) || [];
     } catch {
-      return []
+      return [];
     }
-  })
+  });
 
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
 
   const toggleFavourite = (id) => {
-    setFavourites(prev => {
+    setFavourites((prev) => {
       const next = prev.includes(id)
-        ? prev.filter(f => f !== id)
-        : [...prev, id]
-      localStorage.setItem('gamevault_favourites', JSON.stringify(next))
-      return next
-    })
-  }
+        ? prev.filter((f) => f !== id)
+        : [...prev, id];
+      localStorage.setItem("gamevault_favourites", JSON.stringify(next));
+      return next;
+    });
+  };
 
   return (
     <div className="min-h-screen bg-vault-bg text-text-primary">
@@ -53,6 +55,7 @@ export default function App() {
           }
         />
       </Routes>
+      <Analytics />
     </div>
-  )
+  );
 }
