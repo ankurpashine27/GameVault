@@ -25,6 +25,8 @@ export function useSnakeGame() {
   const [isRunning,    setIsRunning]    = useState(false)
   const [isGameOver,   setIsGameOver]   = useState(false)
   const [intervalSpeed, setIntervalSpeed] = useState(150)
+  // Sound event emitter — each emission gets a unique id so useEffect always fires
+  const [lastEvent, setLastEvent] = useState(null)
 
   // ── Refs (read by game loop, avoids stale closures) ─────────────────────
   const snakeRef       = useRef([])
@@ -193,6 +195,7 @@ export function useSnakeGame() {
           setActiveEffect(null)
           nx = ((nx % cols) + cols) % cols
           ny = ((ny % rows) + rows) % rows
+          setLastEvent({ type: 'shieldHit', id: Date.now() })
         } else {
           handleGameOver()
           return
@@ -214,6 +217,7 @@ export function useSnakeGame() {
         setShieldActive(false)
         activeEffRef.current = null
         setActiveEffect(null)
+        setLastEvent({ type: 'shieldHit', id: Date.now() })
       } else {
         handleGameOver()
         return
@@ -227,6 +231,7 @@ export function useSnakeGame() {
         setShieldActive(false)
         activeEffRef.current = null
         setActiveEffect(null)
+        setLastEvent({ type: 'shieldHit', id: Date.now() })
       } else {
         handleGameOver()
         return
@@ -241,6 +246,7 @@ export function useSnakeGame() {
       scoreRef.current += pts
       setScore(scoreRef.current)
       spawnFood()
+      setLastEvent({ type: 'eat', id: Date.now() })
     }
 
     // Check power-up item
@@ -255,6 +261,7 @@ export function useSnakeGame() {
       setPowerUpItem(null)
       applyPowerUpEffect(pu.type)
       ateFood = pu.type === 'bonus_food' // bonus food grows snake
+      setLastEvent({ type: pu.type === 'speed_boost' ? 'speedBoost' : 'powerUp', id: Date.now() })
     }
 
     // Check expired power-up item
@@ -296,6 +303,7 @@ export function useSnakeGame() {
     isRunningRef.current = false
     setIsRunning(false)
     setIsGameOver(true)
+    setLastEvent({ type: 'gameOver', id: Date.now() })
     clearPowerUpSpawnTimer()
     clearActiveEffect()
     if (movingObstacleIntervalRef.current) {
@@ -398,6 +406,7 @@ export function useSnakeGame() {
   return {
     snake, food, powerUpItem, activeEffect, obstacles,
     score, direction, shieldActive, isRunning, isGameOver,
+    lastEvent,
     currentSettings: settingsRef.current,
     startGame, pauseGame, resumeGame, changeDirection, resetGame,
   }

@@ -31,6 +31,9 @@ export function useTicTacToeGame() {
   // gameStatus: 'idle' | 'playing' | 'ai_thinking' | 'gameover'
   const [gameStatus, setGameStatus] = useState('idle')
 
+  // Sound event emitter
+  const [lastEvent, setLastEvent] = useState(null)
+
   // winResult: null | { winner: 'X'|'O', cells: [[r,c],...] } | { draw: true }
   const [winResult, setWinResult] = useState(null)
 
@@ -123,6 +126,12 @@ export function useTicTacToeGame() {
     if (newScore.X >= configRef.current.seriesWinsNeeded) setSeriesWinner('X')
     else if (newScore.O >= configRef.current.seriesWinsNeeded) setSeriesWinner('O')
 
+    setLastEvent({
+      type: 'gameover',
+      result: result.draw ? 'draw' : result.winner,
+      vsAI: configRef.current.vsAI,
+      id: Date.now(),
+    })
     setGameStatus('gameover')
   }
 
@@ -292,6 +301,7 @@ export function useTicTacToeGame() {
     newBoard[row][col] = player
     boardRef.current = newBoard
     setBoard(newBoard)
+    setLastEvent({ type: 'place', id: Date.now() })
 
     // Check outcome
     const result = checkWin(newBoard, size, winLength)
@@ -323,6 +333,7 @@ export function useTicTacToeGame() {
     newBoard[row][col] = 'O'
     boardRef.current = newBoard
     setBoard(newBoard)
+    setLastEvent({ type: 'place', id: Date.now() })
 
     const result = checkWin(newBoard, size, winLength)
     if (result) { handleGameOver(result); return }
@@ -366,6 +377,7 @@ export function useTicTacToeGame() {
     // Block or Swap: arm and wait for cell click
     armedPowerUpRef.current = id
     setArmedPowerUp(id)
+    setLastEvent({ type: 'powerUpArm', id: Date.now() })
   }, [gameStatus])
 
   // Cleanup timer on unmount
@@ -386,6 +398,7 @@ export function useTicTacToeGame() {
     extraTurnActive,
     blockedCells,
     timerLeft,
+    lastEvent,
     // Actions
     startGame,
     startNextGame,

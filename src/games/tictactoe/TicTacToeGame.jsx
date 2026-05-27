@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTicTacToeSettings } from './hooks/useTicTacToeSettings.js'
 import { useTicTacToeGame } from './hooks/useTicTacToeGame.js'
 import { useAI } from './hooks/useAI.js'
+import { useSound } from '../../shared/useSound.js'
 import PreGameScreen from './PreGameScreen.jsx'
 import GameBoard from './GameBoard.jsx'
 import SeriesTracker from './SeriesTracker.jsx'
@@ -50,6 +51,7 @@ function HUD({
   vsAI, aiDifficulty,
   powerUps, armedPowerUp, extraTurnActive,
   timerLeft, timerSeconds,
+  muted, onToggleMute,
   onArmPowerUp,
   onPause,
 }) {
@@ -136,6 +138,18 @@ function HUD({
         </div>
       )}
 
+      {/* Mute */}
+      <button
+        onClick={onToggleMute}
+        className="text-text-muted hover:text-text-primary transition-colors
+          w-8 h-8 flex items-center justify-center rounded-lg
+          hover:bg-vault-elevated flex-shrink-0"
+        aria-label={muted ? 'Unmute sounds' : 'Mute sounds'}
+        title={muted ? 'Unmute sounds' : 'Mute sounds'}
+      >
+        {muted ? '🔇' : '🔊'}
+      </button>
+
       {/* Pause */}
       <button
         onClick={onPause}
@@ -159,11 +173,13 @@ export default function TicTacToeGame() {
     saveMatchToHistory, getHistory,
   } = useTicTacToeSettings()
 
+  const { play, muted, toggleMute } = useSound()
+
   const {
     board, currentPlayer, gameStatus, winResult,
     seriesScore, seriesWinner,
     powerUps, armedPowerUp, extraTurnActive, blockedCells,
-    timerLeft,
+    timerLeft, lastEvent,
     startGame, startNextGame, resetAll,
     placePiece, applyAIMove, armPowerUp,
     getConfig,
@@ -231,6 +247,35 @@ export default function TicTacToeGame() {
       setScreen('gameover')
     }
   }, [gameStatus, screen])
+
+  // ── Sound: game events ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!lastEvent) return
+    if (lastEvent.type === 'place') {
+      play('ttt:place')
+    } else if (lastEvent.type === 'gameover') {
+      if (lastEvent.result === 'draw') {
+        play('ttt:draw')
+      } else if (lastEvent.result === 'X') {
+        // X wins — always the human in vs-AI, and player 1 in 2P
+        play('ttt:win')
+      } else if (lastEvent.result === 'O') {
+        // O wins — AI in vs-AI mode, player 2 in 2P
+        play(lastEvent.vsAI ? 'ttt:lose' : 'ttt:win')
+      }
+    } else if (lastEvent.type === 'powerUpArm') {
+      play('ttt:powerUpArm')
+    }
+  }, [lastEvent]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Sound: timer ticks when ≤ 3 seconds remain ──────────────────────────────
+  const prevTimerRef = useRef(null)
+  useEffect(() => {
+    if (timerLeft <= 3 && timerLeft > 0 && timerLeft !== prevTimerRef.current && screen === 'playing') {
+      play('ttt:timerTick')
+    }
+    prevTimerRef.current = timerLeft
+  }, [timerLeft]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Keyboard handler ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -333,6 +378,8 @@ export default function TicTacToeGame() {
               extraTurnActive={extraTurnActive}
               timerLeft={timerLeft}
               timerSeconds={cfg.timerSeconds}
+              muted={muted}
+              onToggleMute={toggleMute}
               onArmPowerUp={armPowerUp}
               onPause={() => setScreen(screen === 'playing' ? 'paused' : 'playing')}
             />

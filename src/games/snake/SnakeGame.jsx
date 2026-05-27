@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSnakeSettings } from './hooks/useSnakeSettings.js'
 import { useSnakeGame } from './hooks/useSnakeGame.js'
+import { useSound } from '../../shared/useSound.js'
 import { DIFFICULTIES, POWER_UP_TYPES } from './constants.js'
 import PreGameScreen from './PreGameScreen.jsx'
 import PauseMenu from './PauseMenu.jsx'
@@ -17,7 +18,7 @@ const isTouchDevice = () =>
     window.matchMedia('(pointer: coarse)').matches
   )
 
-function HUD({ score, personalBest, activeEffect, difficulty, powerupsOn, onPause }) {
+function HUD({ score, personalBest, activeEffect, difficulty, powerupsOn, muted, onToggleMute, onPause }) {
   const diffConfig = DIFFICULTIES[difficulty]
   const diffColors = {
     casual: 'text-difficulty-easy border-difficulty-easy',
@@ -79,6 +80,15 @@ function HUD({ score, personalBest, activeEffect, difficulty, powerupsOn, onPaus
           {diffConfig?.name}
         </span>
 
+        {/* Mute button */}
+        <button
+          onClick={onToggleMute}
+          className="text-[#4a7a54] hover:text-green-300 transition-colors p-1.5 rounded hover:bg-[#193d22]"
+          title={muted ? 'Unmute sounds' : 'Mute sounds'}
+        >
+          {muted ? '🔇' : '🔊'}
+        </button>
+
         {/* Pause button */}
         <button
           onClick={onPause}
@@ -128,9 +138,12 @@ export default function SnakeGame() {
     saveToLeaderboard, getLeaderboard,
   } = useSnakeSettings()
 
+  const { play, muted, toggleMute } = useSound()
+
   const {
     snake, food, powerUpItem, activeEffect, obstacles,
     score, direction, shieldActive, isRunning, isGameOver,
+    lastEvent,
     startGame, pauseGame, resumeGame, changeDirection, resetGame,
   } = useSnakeGame()
 
@@ -158,6 +171,20 @@ export default function SnakeGame() {
       setScreen('gameover')
     }
   }, [isGameOver])
+
+  // Sound events
+  useEffect(() => {
+    if (!lastEvent) return
+    const soundMap = {
+      eat:        'snake:eat',
+      powerUp:    'snake:powerUp',
+      speedBoost: 'snake:speedBoost',
+      shieldHit:  'snake:shieldHit',
+      gameOver:   'snake:gameOver',
+    }
+    const name = soundMap[lastEvent.type]
+    if (name) play(name)
+  }, [lastEvent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Keyboard handler
   useEffect(() => {
@@ -261,6 +288,8 @@ export default function SnakeGame() {
             activeEffect={activeEffect}
             difficulty={settings.difficulty}
             powerupsOn={settings.powerupsOn}
+            muted={muted}
+            onToggleMute={toggleMute}
             onPause={handlePause}
           />
           <div className={`flex-1 relative overflow-hidden ${showDPad ? 'flex flex-col' : ''}`}>
