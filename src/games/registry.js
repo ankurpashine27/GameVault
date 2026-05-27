@@ -33,11 +33,12 @@
  */
 
 import Snake from './snake/index.jsx'
+import TicTacToe from './tictactoe/index.jsx'
 
 export const gameRegistry = {
-  'snake': Snake,
+  'snake':     Snake,
+  'tictactoe': TicTacToe,
   // Uncomment as games are implemented:
-  // 'tic-tac-toe':  TicTacToe,
   // 'tetris':       Tetris,
   // 'flappy-bird':  FlappyBird,
   // 'memory-match': MemoryMatch,

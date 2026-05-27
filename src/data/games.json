@@ -14,17 +14,17 @@
     "featured": true
   },
   {
-    "id": "tic-tac-toe",
+    "id": "tictactoe",
     "title": "Tic-Tac-Toe",
-    "description": "The classic 3x3 strategy game. Challenge a friend or outsmart the AI.",
-    "longDescription": "The ultimate test of simple strategy. Play against a friend in local multiplayer or go head-to-head against an unbeatable AI powered by the minimax algorithm. Choose your symbol, claim three in a row, and prove your tactical dominance. Sounds simple — winning consistently is anything but.",
+    "description": "Classic strategy across 3 board sizes. Beat an unbeatable AI — or a friend.",
+    "longDescription": "Three board sizes (Classic 3×3, Extended 5×5, Gomoku 15×15), four AI difficulty levels — including a full minimax Unbeatable mode — plus series play, power-ups, and turn timers. 28 unique player avatars. Track your match history and player stats across every session.",
     "thumbnail": null,
     "color": "from-blue-600 to-indigo-900",
-    "tags": ["classic", "strategy", "multiplayer", "single-player", "casual"],
+    "tags": ["classic", "strategy", "multiplayer", "single-player", "puzzle"],
     "players": "1-2",
-    "difficulty": "easy",
+    "difficulty": "Easy to Unbeatable",
     "releaseDate": "2024-02-10",
-    "rating": 4.3,
+    "rating": 4.6,
     "featured": false
   },
   {
