@@ -37,11 +37,11 @@ export const MOVING_OBSTACLE_INTERVAL = 3000
 export const OBSTACLE_COUNT = { 10: 3, 16: 5, 20: 8, 32: 15 }
 
 export const POWER_UP_TYPES = {
-  bonus_food:       { id: 'bonus_food',       icon: '⭐', label: 'Bonus Food',       color: '#fbbf24', points: 50 },
-  speed_boost:      { id: 'speed_boost',      icon: '⚡', label: 'Speed Boost',      color: '#3b82f6', points: 30 },
-  score_multiplier: { id: 'score_multiplier', icon: '×2', label: 'Score ×2',         color: '#a855f7', points: 0  },
-  shrink_pill:      { id: 'shrink_pill',      icon: '💊', label: 'Shrink',           color: '#10b981', points: 20 },
-  shield:           { id: 'shield',           icon: '🛡', label: 'Shield',           color: '#f59e0b', points: 0  },
+  bonus_food:       { id: 'bonus_food',       icon: '⭐', label: 'Bonus Food',  color: '#fbbf24', points: 50,  description: 'Grow 3 segments instantly and score +50 pts — much better than regular food.' },
+  speed_boost:      { id: 'speed_boost',      icon: '⚡', label: 'Speed Boost', color: '#3b82f6', points: 30,  description: 'Snake moves at 60% of normal interval for 5 s. Risky, but every food eaten during boost awards +30 pts.' },
+  score_multiplier: { id: 'score_multiplier', icon: '×2', label: 'Score ×2',   color: '#a855f7', points: 0,   description: 'All points earned are doubled for 8 s. Stack with Speed Boost for maximum points.' },
+  shrink_pill:      { id: 'shrink_pill',      icon: '💊', label: 'Shrink Pill', color: '#10b981', points: 20,  description: 'Instantly removes 3 tail segments and awards +20 pts. Use it to escape a tight corner.' },
+  shield:           { id: 'shield',           icon: '🛡', label: 'Shield',      color: '#f59e0b', points: 0,   description: 'Absorbs ONE fatal collision — wall, self, or obstacle — and wraps you safely. Single use.' },
 }
 
 export const SKINS = {

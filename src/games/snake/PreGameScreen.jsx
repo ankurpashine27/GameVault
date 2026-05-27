@@ -5,7 +5,7 @@ export default function PreGameScreen({
   playerName, onPlayerNameChange,
   selectedSkin, onSkinChange,
   settings, onSettingsChange,
-  onPlay, onLeaderboard,
+  onPlay, onLeaderboard, onHowToPlay,
 }) {
   const { gridSize, difficulty, powerupsOn } = settings
 
@@ -120,18 +120,27 @@ export default function PreGameScreen({
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-3 pb-2">
+        <div className="flex gap-2 pb-2">
+          <button
+            onClick={onHowToPlay}
+            title="How to Play"
+            className="px-3 py-3 rounded-lg border border-vault-border text-text-muted
+              hover:border-accent-blue hover:text-accent-blue transition-colors duration-200
+              font-heading font-bold text-sm flex-shrink-0"
+          >
+            ?
+          </button>
           <button
             onClick={onLeaderboard}
             className="flex-1 py-3 rounded-lg border border-vault-border text-text-secondary
               hover:border-accent-blue hover:text-accent-blue transition-colors duration-200
               font-heading font-semibold text-sm"
           >
-            🏆 Leaderboard
+            🏆 Scores
           </button>
           <button
             onClick={onPlay}
-            className="flex-2 px-8 py-3 rounded-lg bg-accent-blue hover:bg-blue-500 text-white
+            className="flex-[2] px-8 py-3 rounded-lg bg-accent-blue hover:bg-blue-500 text-white
               font-heading font-bold text-lg transition-all duration-200
               shadow-glow-sm hover:shadow-glow-blue hover:scale-105 active:scale-100"
           >

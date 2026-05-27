@@ -2,7 +2,7 @@ import { DIFFICULTIES, GRID_SIZES } from './constants.js'
 
 export default function PauseMenu({
   settings, onSettingsChange,
-  onResume, onRestart, onLeaderboard,
+  onResume, onRestart, onLeaderboard, onHowToPlay,
 }) {
   const { difficulty, powerupsOn } = settings
 
@@ -27,13 +27,20 @@ export default function PauseMenu({
           </button>
 
           {/* Secondary actions */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <button
               onClick={onLeaderboard}
               className="py-2.5 rounded-lg border border-vault-border text-text-secondary text-sm
                 hover:border-accent-blue hover:text-accent-blue transition-colors duration-150 font-medium"
             >
               🏆 Scores
+            </button>
+            <button
+              onClick={onHowToPlay}
+              className="py-2.5 rounded-lg border border-vault-border text-text-secondary text-sm
+                hover:border-accent-blue hover:text-accent-blue transition-colors duration-150 font-medium"
+            >
+              ? Help
             </button>
             <button
               onClick={onRestart}

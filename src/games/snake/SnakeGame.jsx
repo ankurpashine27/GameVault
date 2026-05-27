@@ -6,6 +6,7 @@ import PreGameScreen from './PreGameScreen.jsx'
 import PauseMenu from './PauseMenu.jsx'
 import GameOverScreen from './GameOverScreen.jsx'
 import Leaderboard from './Leaderboard.jsx'
+import HowToPlay from './HowToPlay.jsx'
 import GameBoard from './GameBoard.jsx'
 import DPad from './DPad.jsx'
 
@@ -221,6 +222,15 @@ export default function SnakeGame() {
     setScreen(prevScreen)
   }, [prevScreen])
 
+  const openHowToPlay = useCallback((from) => {
+    setPrevScreen(from || screen)
+    setScreen('howtoplay')
+  }, [screen])
+
+  const closeHowToPlay = useCallback(() => {
+    setScreen(prevScreen)
+  }, [prevScreen])
+
   const showDPad = isMobile || settings.controlScheme === 'dpad'
 
   // ── Render ─────────────────────────────────────────────────────────────
@@ -238,6 +248,7 @@ export default function SnakeGame() {
           onSettingsChange={updateSettings}
           onPlay={handlePlay}
           onLeaderboard={() => openLeaderboard('pregame')}
+          onHowToPlay={() => openHowToPlay('pregame')}
         />
       )}
 
@@ -273,6 +284,7 @@ export default function SnakeGame() {
                 onResume={handleResume}
                 onRestart={handleRestart}
                 onLeaderboard={() => openLeaderboard('paused')}
+                onHowToPlay={() => openHowToPlay('paused')}
               />
             )}
           </div>
@@ -301,6 +313,11 @@ export default function SnakeGame() {
           playerName={playerName}
           onClose={closeLeaderboard}
         />
+      )}
+
+      {/* HOW TO PLAY overlay */}
+      {screen === 'howtoplay' && (
+        <HowToPlay onClose={closeHowToPlay} />
       )}
     </div>
   )

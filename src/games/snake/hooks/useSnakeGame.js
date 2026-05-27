@@ -118,7 +118,16 @@ export function useSnakeGame() {
     const diff = DIFFICULTIES[settingsRef.current.difficulty]
     const duration = POWER_UP_DURATION[type]
 
-    if (type === 'speed_boost') {
+    if (type === 'bonus_food') {
+      // Grow 2 extra segments (tick adds 1 more via ateFood=true → net +3)
+      const tail = snakeRef.current[snakeRef.current.length - 1]
+      snakeRef.current = [...snakeRef.current, tail, tail]
+      // Brief HUD flash for 2 s
+      activeEffRef.current = { type, expiresAt: Date.now() + 2000 }
+      setActiveEffect({ ...activeEffRef.current })
+      activeEffectTimerRef.current = setTimeout(clearActiveEffect, 2000)
+
+    } else if (type === 'speed_boost') {
       const boostedSpeed = Math.round(diff.speed * POWER_UP_SPEED_FACTOR)
       setIntervalSpeed(boostedSpeed)
       activeEffRef.current = { type, expiresAt: Date.now() + duration }
@@ -142,12 +151,14 @@ export function useSnakeGame() {
 
     } else if (type === 'shrink_pill') {
       const s = snakeRef.current
-      if (s.length > SHRINK_AMOUNT + 1) {
-        snakeRef.current = s.slice(0, s.length - SHRINK_AMOUNT)
-      } else {
-        snakeRef.current = s.slice(0, 2) // keep at least 2 segments
-      }
+      snakeRef.current = s.length > SHRINK_AMOUNT + 1
+        ? s.slice(0, s.length - SHRINK_AMOUNT)
+        : s.slice(0, 2) // keep at least 2 segments
       setSnake([...snakeRef.current])
+      // Brief HUD flash for 2 s
+      activeEffRef.current = { type, expiresAt: Date.now() + 2000 }
+      setActiveEffect({ ...activeEffRef.current })
+      activeEffectTimerRef.current = setTimeout(clearActiveEffect, 2000)
     }
   }, [clearActiveEffect])
 
