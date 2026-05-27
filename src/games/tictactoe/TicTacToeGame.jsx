@@ -296,7 +296,8 @@ export default function TicTacToeGame() {
   // ── Derive display values ─────────────────────────────────────────────────────
   const cfg = getConfig()
   const modeConfig = BOARD_MODES[cfg.boardMode] || BOARD_MODES.classic
-  const isPlaying = screen === 'playing' || screen === 'paused'
+  // Keep board visible during gameover so the winning move is shown behind the result overlay
+  const isShowingBoard = screen === 'playing' || screen === 'paused' || screen === 'gameover'
 
   return (
     <div className="flex flex-col h-full bg-vault-bg">
@@ -315,24 +316,27 @@ export default function TicTacToeGame() {
         />
       )}
 
-      {/* ── PLAYING / PAUSED ── */}
-      {isPlaying && board && (
+      {/* ── PLAYING / PAUSED / GAME OVER (board stays mounted) ── */}
+      {isShowingBoard && board && (
         <>
-          <HUD
-            currentPlayer={currentPlayer}
-            gameStatus={gameStatus}
-            p1Name={p1Name} p2Name={p2Name}
-            p1Avatar={p1Avatar} p2Avatar={p2Avatar}
-            vsAI={cfg.vsAI}
-            aiDifficulty={cfg.aiDifficulty}
-            powerUps={powerUps}
-            armedPowerUp={armedPowerUp}
-            extraTurnActive={extraTurnActive}
-            timerLeft={timerLeft}
-            timerSeconds={cfg.timerSeconds}
-            onArmPowerUp={armPowerUp}
-            onPause={() => setScreen(screen === 'playing' ? 'paused' : 'playing')}
-          />
+          {/* Hide HUD when game is over — it's distracting */}
+          {screen !== 'gameover' && (
+            <HUD
+              currentPlayer={currentPlayer}
+              gameStatus={gameStatus}
+              p1Name={p1Name} p2Name={p2Name}
+              p1Avatar={p1Avatar} p2Avatar={p2Avatar}
+              vsAI={cfg.vsAI}
+              aiDifficulty={cfg.aiDifficulty}
+              powerUps={powerUps}
+              armedPowerUp={armedPowerUp}
+              extraTurnActive={extraTurnActive}
+              timerLeft={timerLeft}
+              timerSeconds={cfg.timerSeconds}
+              onArmPowerUp={armPowerUp}
+              onPause={() => setScreen(screen === 'playing' ? 'paused' : 'playing')}
+            />
+          )}
 
           <SeriesTracker
             seriesScore={seriesScore}
@@ -351,7 +355,7 @@ export default function TicTacToeGame() {
               winCells={winResult?.cells}
               blockedCells={blockedCells}
               currentPlayer={currentPlayer}
-              armedPowerUp={armedPowerUp}
+              armedPowerUp={screen === 'playing' ? armedPowerUp : null}
               gameStatus={gameStatus}
               p1Avatar={p1Avatar}
               p2Avatar={p2Avatar}
@@ -369,24 +373,24 @@ export default function TicTacToeGame() {
               />
             )}
           </div>
-        </>
-      )}
 
-      {/* ── GAME OVER ── */}
-      {screen === 'gameover' && (
-        <GameOverScreen
-          winResult={winResult}
-          seriesScore={seriesScore}
-          seriesWinner={seriesWinner}
-          seriesWinsNeeded={cfg.seriesWinsNeeded}
-          settings={settings}
-          p1Name={p1Name} p2Name={p2Name}
-          p1Avatar={p1Avatar} p2Avatar={p2Avatar}
-          vsAI={cfg.vsAI}
-          onPlayAgain={handlePlayAgain}
-          onNextGame={handleNextGame}
-          onLeaderboard={handleLeaderboard}
-        />
+          {/* Game Over panel — anchored below the board so winning cells stay fully visible */}
+          {screen === 'gameover' && (
+            <GameOverScreen
+              winResult={winResult}
+              seriesScore={seriesScore}
+              seriesWinner={seriesWinner}
+              seriesWinsNeeded={cfg.seriesWinsNeeded}
+              settings={settings}
+              p1Name={p1Name} p2Name={p2Name}
+              p1Avatar={p1Avatar} p2Avatar={p2Avatar}
+              vsAI={cfg.vsAI}
+              onPlayAgain={handlePlayAgain}
+              onNextGame={handleNextGame}
+              onLeaderboard={handleLeaderboard}
+            />
+          )}
+        </>
       )}
 
       {/* ── LEADERBOARD ── */}

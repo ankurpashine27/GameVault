@@ -48,11 +48,13 @@ function Cell({
         position: 'relative',
         transition: 'background-color 120ms ease, box-shadow 120ms ease',
         backgroundColor: isWinCell
-          ? playerColor + '22'
+          ? playerColor + '38'
           : isBlocked
             ? '#0E1421'
             : 'transparent',
-        boxShadow: isWinCell ? `inset 0 0 ${cellSize * 0.4}px ${playerColor}44` : 'none',
+        boxShadow: isWinCell
+          ? `inset 0 0 ${cellSize * 0.5}px ${playerColor}88, 0 0 ${cellSize * 0.3}px ${playerColor}55`
+          : 'none',
       }}
       className={`
         ${clickable && !isBlocked ? 'hover:bg-white/[0.04]' : ''}
@@ -82,7 +84,7 @@ function Cell({
             fontSize,
             lineHeight: 1,
             filter: isWinCell
-              ? `drop-shadow(0 0 ${cellSize * 0.12}px ${playerColor})`
+              ? `drop-shadow(0 0 ${cellSize * 0.2}px ${playerColor}) drop-shadow(0 0 ${cellSize * 0.1}px ${playerColor})`
               : undefined,
             animation: 'tttPieceIn 0.18s ease-out',
             display: 'block',
@@ -104,14 +106,17 @@ function Cell({
         }} />
       )}
 
-      {/* Win line segment indicator */}
+      {/* Win cell border pulse */}
       {isWinCell && (
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          border: `2px solid ${playerColor}66`,
-          pointerEvents: 'none',
-        }} />
+        <div
+          className="animate-pulse-slow"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            border: `2px solid ${playerColor}aa`,
+            pointerEvents: 'none',
+          }}
+        />
       )}
     </div>
   )
