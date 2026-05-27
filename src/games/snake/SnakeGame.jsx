@@ -33,11 +33,11 @@ function HUD({ score, personalBest, activeEffect, difficulty, powerupsOn, onPaus
   const puConfig = activeEffect ? POWER_UP_TYPES[activeEffect.type] : null
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2 bg-vault-elevated border-b border-vault-border flex-shrink-0">
+    <div className="flex items-center gap-3 px-3 py-2 bg-[#0d1e10] border-b border-[rgba(34,197,94,0.25)] flex-shrink-0">
       {/* Score */}
       <div className="flex flex-col leading-none min-w-[60px]">
-        <span className="text-[10px] text-text-muted uppercase tracking-wider">Score</span>
-        <span className="font-heading text-xl font-bold text-text-primary">{score}</span>
+        <span className="text-[10px] text-[#4a7a54] uppercase tracking-wider">Score</span>
+        <span className="font-heading text-xl font-bold text-green-50">{score}</span>
       </div>
 
       {/* Active effect */}
@@ -49,7 +49,7 @@ function HUD({ score, personalBest, activeEffect, difficulty, powerupsOn, onPaus
               <p className="text-xs font-medium leading-none mb-1" style={{ color: puConfig.color }}>
                 {puConfig.label}
               </p>
-              <div className="h-1 bg-vault-muted rounded-full overflow-hidden w-full">
+              <div className="h-1 bg-[#193d22] rounded-full overflow-hidden w-full">
                 <ActiveEffectBar effect={activeEffect} color={puConfig.color} />
               </div>
             </div>
@@ -70,8 +70,8 @@ function HUD({ score, personalBest, activeEffect, difficulty, powerupsOn, onPaus
       <div className="flex items-center gap-3 flex-shrink-0">
         {/* Personal best */}
         <div className="flex flex-col leading-none text-right">
-          <span className="text-[10px] text-text-muted uppercase tracking-wider">Best</span>
-          <span className="font-heading text-sm font-semibold text-text-secondary">{personalBest}</span>
+          <span className="text-[10px] text-[#4a7a54] uppercase tracking-wider">Best</span>
+          <span className="font-heading text-sm font-semibold text-green-300">{personalBest}</span>
         </div>
 
         {/* Difficulty badge */}
@@ -82,7 +82,7 @@ function HUD({ score, personalBest, activeEffect, difficulty, powerupsOn, onPaus
         {/* Pause button */}
         <button
           onClick={onPause}
-          className="text-text-muted hover:text-text-primary transition-colors p-1.5 rounded hover:bg-vault-surface"
+          className="text-[#4a7a54] hover:text-green-300 transition-colors p-1.5 rounded hover:bg-[#193d22]"
           title="Pause (Esc)"
         >
           ⏸
@@ -235,7 +235,7 @@ export default function SnakeGame() {
 
   // ── Render ─────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col w-full h-full bg-[#0a0a0f] overflow-hidden relative">
+    <div className="flex flex-col w-full h-full bg-[#060e08] overflow-hidden relative">
 
       {/* PRE-GAME */}
       {screen === 'pregame' && (

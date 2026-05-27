@@ -44,6 +44,14 @@
     @apply bg-gradient-to-r from-accent-blue via-accent-violet to-accent-cyan bg-clip-text text-transparent;
   }
 
+  /* Snake game — green gradient headline text */
+  .snake-gradient-text {
+    background: linear-gradient(135deg, #4ade80, #22c55e, #86efac);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

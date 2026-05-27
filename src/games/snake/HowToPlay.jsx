@@ -17,7 +17,7 @@ const DIFFICULTY_EXTRAS = {
 function Section({ title, children }) {
   return (
     <div>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-2.5">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-[#4a7a54] mb-2.5">
         {title}
       </p>
       {children}
@@ -27,8 +27,8 @@ function Section({ title, children }) {
 
 function KeyChip({ children }) {
   return (
-    <kbd className="inline-block bg-vault-surface border border-vault-border
-      px-1.5 py-0.5 rounded font-mono text-[11px] text-text-secondary leading-none">
+    <kbd className="inline-block bg-[#0d1e10] border border-[rgba(34,197,94,0.3)]
+      px-1.5 py-0.5 rounded font-mono text-[11px] text-green-300/70 leading-none">
       {children}
     </kbd>
   )
@@ -36,16 +36,16 @@ function KeyChip({ children }) {
 
 export default function HowToPlay({ onClose }) {
   return (
-    <div className="absolute inset-0 z-30 flex flex-col bg-[#0a0a0f] animate-fadeIn overflow-hidden">
+    <div className="absolute inset-0 z-30 flex flex-col bg-[#060e08] animate-fadeIn overflow-hidden">
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3
-        border-b border-vault-border flex-shrink-0 bg-vault-elevated">
-        <h2 className="font-heading text-lg font-bold text-text-primary">How to Play</h2>
+        border-b border-[rgba(34,197,94,0.25)] flex-shrink-0 bg-[#0d1e10]">
+        <h2 className="font-heading text-lg font-bold snake-gradient-text">How to Play</h2>
         <button
           onClick={onClose}
-          className="text-text-muted hover:text-text-primary transition-colors
-            w-8 h-8 flex items-center justify-center rounded-lg hover:bg-vault-surface text-lg"
+          className="text-[#4a7a54] hover:text-green-300 transition-colors
+            w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#193d22] text-lg"
           aria-label="Close"
         >
           ✕
@@ -58,7 +58,7 @@ export default function HowToPlay({ onClose }) {
 
           {/* Goal */}
           <Section title="The Goal">
-            <p className="text-sm text-text-secondary leading-relaxed">
+            <p className="text-sm text-green-300/70 leading-relaxed">
               Guide your snake to eat food and grow as long as possible.
               Don't hit walls (in most difficulties) or your own body — or it's game over.
               Grab power-ups for big advantages and bonus points.
@@ -78,21 +78,21 @@ export default function HowToPlay({ onClose }) {
                   <div className="flex items-center gap-1 w-32 flex-shrink-0">
                     {keys.map(k => <KeyChip key={k}>{k}</KeyChip>)}
                   </div>
-                  <span className="text-sm text-text-secondary">{label}</span>
+                  <span className="text-sm text-green-300/70">{label}</span>
                 </div>
               ))}
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1 w-32 flex-shrink-0">
-                  <span className="text-xs text-text-muted italic">Swipe</span>
+                  <span className="text-xs text-[#4a7a54] italic">Swipe</span>
                 </div>
-                <span className="text-sm text-text-secondary">Steer on touch screens</span>
+                <span className="text-sm text-green-300/70">Steer on touch screens</span>
               </div>
             </div>
           </Section>
 
           {/* Power-ups */}
           <Section title="Power-Ups">
-            <p className="text-xs text-text-muted mb-3">
+            <p className="text-xs text-[#4a7a54] mb-3">
               Power-ups appear on the board between 10–20 s apart. Eat them before they disappear!
             </p>
             <div className="flex flex-col gap-2">
@@ -132,7 +132,7 @@ export default function HowToPlay({ onClose }) {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-text-muted leading-relaxed">
+                    <p className="text-xs text-[#4a7a54] leading-relaxed">
                       {pu.description}
                     </p>
                   </div>
@@ -157,8 +157,8 @@ export default function HowToPlay({ onClose }) {
                     >
                       {diff.name}
                     </span>
-                    <span className="text-xs text-text-muted ml-2">×{diff.multiplier} score</span>
-                    <p className="text-xs text-text-muted mt-0.5">{DIFFICULTY_EXTRAS[key]}</p>
+                    <span className="text-xs text-[#4a7a54] ml-2">×{diff.multiplier} score</span>
+                    <p className="text-xs text-[#4a7a54] mt-0.5">{DIFFICULTY_EXTRAS[key]}</p>
                   </div>
                 </div>
               ))}
@@ -176,8 +176,8 @@ export default function HowToPlay({ onClose }) {
                 ['×2 Score active', 'All pts doubled for 8 s'],
               ].map(([item, desc]) => (
                 <div key={item} className="flex justify-between gap-4">
-                  <span className="text-text-secondary">{item}</span>
-                  <span className="text-text-muted text-right text-xs">{desc}</span>
+                  <span className="text-green-300/70">{item}</span>
+                  <span className="text-[#4a7a54] text-right text-xs">{desc}</span>
                 </div>
               ))}
             </div>
@@ -185,7 +185,7 @@ export default function HowToPlay({ onClose }) {
 
           {/* Tips */}
           <Section title="Pro Tips">
-            <ul className="flex flex-col gap-1.5 text-sm text-text-secondary">
+            <ul className="flex flex-col gap-1.5 text-sm text-green-300/70">
               {[
                 'Activate ×2 Score right before a cluster of food for a big points burst.',
                 'Eat a Shrink Pill when cornered — it buys you 3 extra squares of space.',
@@ -194,7 +194,7 @@ export default function HowToPlay({ onClose }) {
                 'Larger grids mean more room to manoeuvre and higher possible scores.',
               ].map(tip => (
                 <li key={tip} className="flex gap-2 items-start leading-relaxed">
-                  <span className="text-accent-blue mt-0.5 flex-shrink-0">›</span>
+                  <span className="text-green-500 mt-0.5 flex-shrink-0">›</span>
                   <span>{tip}</span>
                 </li>
               ))}

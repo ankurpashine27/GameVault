@@ -200,8 +200,8 @@ export default function GameBoard({
             gridTemplateRows: `repeat(${gridSize}, ${cellSize}px)`,
             width: gridPixels,
             height: gridPixels,
-            backgroundColor: '#0a0f1e',
-            border: '1px solid rgba(59,130,246,0.15)',
+            backgroundColor: '#060e08',
+            border: '1px solid rgba(34,197,94,0.25)',
             borderRadius: 4,
             overflow: 'hidden',
           }}
@@ -217,8 +217,8 @@ export default function GameBoard({
                 style={{
                   width: cellSize,
                   height: cellSize,
-                  borderRight:  '1px solid rgba(255,255,255,0.03)',
-                  borderBottom: '1px solid rgba(255,255,255,0.03)',
+                  borderRight:  '1px solid rgba(34,197,94,0.07)',
+                  borderBottom: '1px solid rgba(34,197,94,0.07)',
                   position: 'relative',
                   display: 'flex',
                 }}

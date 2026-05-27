@@ -34,12 +34,12 @@ export default function SkinSelector({ selectedSkin, onSelect }) {
             onClick={() => onSelect(skin.id)}
             className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all duration-150
               ${isSelected
-                ? 'border-accent-blue bg-accent-blue/10 shadow-glow-sm'
-                : 'border-vault-border bg-vault-surface hover:border-vault-muted hover:bg-vault-elevated'
+                ? 'border-green-500 bg-green-500/10 shadow-[0_0_8px_rgba(34,197,94,0.3)]'
+                : 'border-[rgba(34,197,94,0.2)] bg-[#0d1e10] hover:border-[rgba(34,197,94,0.45)] hover:bg-[#112716]'
               }`}
           >
             <MiniSnake skin={skin} />
-            <span className={`text-xs font-medium ${isSelected ? 'text-accent-blue' : 'text-text-secondary'}`}>
+            <span className={`text-xs font-medium ${isSelected ? 'text-green-400' : 'text-green-300/60'}`}>
               {skin.name}
             </span>
           </button>
