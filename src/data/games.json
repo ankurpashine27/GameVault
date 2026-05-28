@@ -40,5 +40,19 @@
     "releaseDate": "2025-01-01",
     "rating": 4.9,
     "featured": false
+  },
+  {
+    "id": "flappybird",
+    "title": "Flappy Bird",
+    "description": "Tap to flap through pipes. 7 difficulty stages, 6 power-ups, 14 skins, and 8 parallax worlds.",
+    "longDescription": "The timeless one-tap challenge, fully loaded. Navigate your bird through an endless gauntlet of pipes that get faster and tighter as you score higher. Collect coins, gems, and stars mid-flight. Grab power-ups like Shield, Ghost, and Slow-Mo to survive longer. Unlock 14 bird skins and 8 parallax backgrounds. Complete 4 collection sets to earn exclusive skins. Chase 18 achievements and climb the leaderboard.",
+    "thumbnail": null,
+    "color": "from-sky-400 to-blue-700",
+    "tags": ["arcade", "casual", "classic", "single-player"],
+    "players": "1",
+    "difficulty": "Easy to Insane",
+    "releaseDate": "2025-05-28",
+    "rating": 4.7,
+    "featured": true
   }
 ]
