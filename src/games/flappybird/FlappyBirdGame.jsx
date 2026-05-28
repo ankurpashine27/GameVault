@@ -42,7 +42,7 @@ export default function FlappyBirdGame() {
   const [screen, setScreen] = useState('pregame')
   // screenRef is always in sync — updated synchronously before setScreen()
   // so any callback registered once ([] deps) reads the correct value
-  const screenRef    = useRef('pregame')
+  const screenRef     = useRef('pregame')
   const prevScreenRef = useRef('pregame')
 
   // Helper: update ref AND React state atomically
@@ -69,13 +69,19 @@ export default function FlappyBirdGame() {
     resetRun, checkAchievements, updateRunStats,
   } = useCollections()
 
-  const audio = useAudio(settings)
+  // Destructure STABLE function references from useAudio.
+  // useAudio returns a new object literal each render, but the individual
+  // functions are useCallback with stable deps — they are the SAME function
+  // object across renders. Depending on `audio` (the wrapper object) would
+  // cause any downstream useCallback/useEffect to re-run every render.
+  const { play: playAudio, startTrack, stopTrack, ensureCtx } = useAudio(settings)
 
   // ─── Refs ─────────────────────────────────────────────────────────────────
   const canvasRef    = useRef(null)   // GameCanvas imperative handle
   const gameStateRef = useRef(null)
   const rafRef       = useRef(null)
   const lastTimeRef  = useRef(null)
+  const wrapperRef   = useRef(null)   // canvas wrapper div for native pointer input
 
   // ─── HUD state (updated from game loop) ───────────────────────────────────
   const [hudScore,      setHudScore]      = useState(0)
@@ -138,15 +144,16 @@ export default function FlappyBirdGame() {
   }, [settings, getCollectedItems, resetRun])
 
   // ─── Flap ─────────────────────────────────────────────────────────────────
-  // Reads screenRef (always current) — safe to call from any closure
+  // playAudio is a stable useCallback — doFlap only recreates if playAudio
+  // changes (never), so the keydown/pointer useEffects below run exactly once.
   const doFlap = useCallback(() => {
     if (screenRef.current !== 'playing') return
     const g = gameStateRef.current
     if (!g) return
     if (!g.started) g.started = true
     flapBird(g.bird)
-    audio.play('flap')
-  }, [audio])
+    playAudio('flap')
+  }, [playAudio])
 
   // ─── Loop helpers ─────────────────────────────────────────────────────────
   const stopLoop = useCallback(() => {
@@ -202,7 +209,7 @@ export default function FlappyBirdGame() {
     const stage = blendStage(g.score)
     if (stage.stageIdx !== g.stageIdx) {
       g.stageIdx = stage.stageIdx
-      audio.play('stage_up')
+      playAudio('stage_up')
       setCurrentStage(STAGES[stage.stageIdx])
       updateRunStats({ maxStage: stage.stageIdx })
     }
@@ -226,7 +233,7 @@ export default function FlappyBirdGame() {
       const mult = g.scoreX2Active ? 2 : 1
       g.score += scored * mult
       if (g.slowMoActive) g.slowMoScore += scored
-      audio.play('score')
+      playAudio('score')
       setHudScore(g.score)
       addPopup(g, g.bird.x, g.bird.y - 30, `+${scored * mult}`, '#ffffff', 18)
     }
@@ -263,7 +270,7 @@ export default function FlappyBirdGame() {
       if (!pu || pu.collected) continue
       pu.collected = true
       activatePowerup(g, pu.type)
-      audio.play('powerup')
+      playAudio('powerup')
       g.powerupsUsedSet.add(pu.type)
       addPopup(g, pu.x, pu.y - 22, POWERUPS[pu.type]?.name || '⚡', '#f0abfc', 15)
     }
@@ -291,7 +298,7 @@ export default function FlappyBirdGame() {
           g.shieldActive = false
           g.shieldTimer  = 0
           g.shieldSaves++
-          audio.play('shield_hit')
+          playAudio('shield_hit')
           setActivePowerup(null)
           g.bird.vy = -280
         } else {
@@ -314,22 +321,22 @@ export default function FlappyBirdGame() {
       g.score += COIN_VALUE * mult
       g.coinsThisRun++
       setHudScore(g.score)
-      audio.play('coin')
+      playAudio('coin')
       addPopup(g, item.x, item.y - 18, `+${COIN_VALUE * mult}`, '#fbbf24', 15)
     } else if (item.type === 'gem') {
       const mult = g.scoreX2Active ? 2 : 1
       g.score += GEM_VALUE * mult
       setHudScore(g.score)
-      audio.play('gem')
+      playAudio('gem')
       addPopup(g, item.x, item.y - 18, `+${GEM_VALUE * mult}💎`, '#a78bfa', 16)
     } else if (item.type === 'star') {
       const mult = g.scoreX2Active ? 2 : 1
       g.score += STAR_VALUE * mult
       setHudScore(g.score)
-      audio.play('star')
+      playAudio('star')
       addPopup(g, item.x, item.y - 22, `+${STAR_VALUE * mult}★`, '#fde047', 18)
     } else if (item.type === 'collection') {
-      audio.play('collection_item')
+      playAudio('collection_item')
       addPopup(g, item.x, item.y - 22, '✦ Collected!', '#f0abfc', 16)
       const newSet = collectItem(item.itemId)
       if (newSet) setNewCollectionSets(prev => [...prev, newSet])
@@ -361,7 +368,7 @@ export default function FlappyBirdGame() {
         g[tk] -= dt
         if (g[tk] <= 0) {
           g[ak] = false; g[tk] = 0
-          audio.play('powerup_expire')
+          playAudio('powerup_expire')
           setActivePowerup(null); setPowerupTimer(0)
         } else {
           setPowerupTimer(g[tk])
@@ -372,7 +379,7 @@ export default function FlappyBirdGame() {
 
   // ─── Death ────────────────────────────────────────────────────────────────
   function handleDeath(g) {
-    audio.play('death')
+    playAudio('death')
     g.particles.push(...createDeathParticles(g.bird.x, g.bird.y))
     // Stop loop (set to null so the loop's RAF doesn't re-queue itself)
     if (rafRef.current) { cancelAnimationFrame(rafRef.current) }
@@ -397,13 +404,13 @@ export default function FlappyBirdGame() {
         totalGames,
       }
       const newAchs = checkAchievements(summary, { unlockAchievement, getUnlockedAchievements, getCompletedSets })
-      if (newAchs.length) audio.play('achievement')
+      if (newAchs.length) playAudio('achievement')
 
       setLastSummary(summary)
       setIsNewHighScore(isNewHs)
       setNewAchievements(newAchs)
       goTo('gameover')
-      audio.stopTrack()
+      stopTrack()
     }, 600)
   }
 
@@ -429,7 +436,8 @@ export default function FlappyBirdGame() {
   }
 
   // ─── Global keyboard handler (registered ONCE) ────────────────────────────
-  // Reads screenRef.current (always current) so no stale-closure risk.
+  // doFlap is stable (depends on playAudio which never changes), so this
+  // effect runs exactly once — no listener teardown/re-add during gameplay.
   useEffect(() => {
     const onKey = (e) => {
       // Never intercept Shift+Esc (GameFrame owns that)
@@ -464,7 +472,26 @@ export default function FlappyBirdGame() {
 
     window.addEventListener('keydown', onKey, { capture: true })
     return () => window.removeEventListener('keydown', onKey, { capture: true })
-  }, [doFlap, stopLoop, startLoop, goTo])   // all stable useCallbacks
+  }, [doFlap, stopLoop, startLoop, goTo])   // all stable useCallbacks → runs once
+
+  // ─── Native pointer handler (registered ONCE on wrapper div) ─────────────
+  // Native addEventListener instead of React synthetic props so the listener
+  // is never torn down mid-game when parent re-renders.
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const onDown = (e) => {
+      if (e.type === 'mousedown' && e.button !== 0) return
+      if (e.cancelable) e.preventDefault()
+      doFlap()
+    }
+    el.addEventListener('mousedown', onDown)
+    el.addEventListener('touchstart', onDown, { passive: false })
+    return () => {
+      el.removeEventListener('mousedown', onDown)
+      el.removeEventListener('touchstart', onDown)
+    }
+  }, [doFlap])   // doFlap is stable → runs once
 
   // ─── Visibility change (auto-pause) ──────────────────────────────────────
   useEffect(() => {
@@ -480,8 +507,8 @@ export default function FlappyBirdGame() {
 
   // ─── Cleanup on unmount ───────────────────────────────────────────────────
   useEffect(() => {
-    return () => { stopLoop(); audio.stopTrack() }
-  }, [stopLoop, audio])
+    return () => { stopLoop(); stopTrack() }
+  }, [stopLoop, stopTrack])
 
   // ─── Screen transitions ───────────────────────────────────────────────────
   const handlePlay = useCallback(() => {
@@ -489,12 +516,12 @@ export default function FlappyBirdGame() {
     initGameState()
     setNewAchievements([])
     setNewCollectionSets([])
-    audio.ensureCtx()
-    audio.startTrack(settings.musicTrack || 0)
+    ensureCtx()
+    startTrack(settings.musicTrack || 0)
     goTo('playing')
     // Give React one frame to commit the canvas before the loop draws
     requestAnimationFrame(() => startLoop())
-  }, [stopLoop, initGameState, audio, settings.musicTrack, goTo, startLoop])
+  }, [stopLoop, initGameState, ensureCtx, startTrack, settings.musicTrack, goTo, startLoop])
 
   const handleResume = useCallback(() => {
     goTo('playing')
@@ -522,25 +549,16 @@ export default function FlappyBirdGame() {
 
   const handleMenu = useCallback(() => {
     stopLoop()
-    audio.stopTrack()
+    stopTrack()
     goTo('pregame')
-  }, [stopLoop, audio, goTo])
+  }, [stopLoop, stopTrack, goTo])
 
   const handleToggleMusic = useCallback(() => {
     const newVol = settings.musicVolume > 0 ? 0 : 0.35
     updateSettings({ musicVolume: newVol })
-    if (newVol === 0) audio.stopTrack()
-    else audio.startTrack(settings.musicTrack || 0)
-  }, [settings, updateSettings, audio])
-
-  // ─── Pointer event handler for canvas area ────────────────────────────────
-  // Attached to the wrapper div so the full viewport area is tappable
-  const handlePointerDown = useCallback((e) => {
-    // Ignore right-click
-    if (e.button !== undefined && e.button !== 0) return
-    e.preventDefault()
-    doFlap()
-  }, [doFlap])
+    if (newVol === 0) stopTrack()
+    else startTrack(settings.musicTrack || 0)
+  }, [settings, updateSettings, stopTrack, startTrack])
 
   const highScore  = getHighScore()
   const totalGames = getTotalGames()
@@ -551,12 +569,11 @@ export default function FlappyBirdGame() {
 
       {/* ── Canvas layer ──────────────────────────────────────────────────── */}
       {/* Visible during playing / paused / dead (to show death animation).  */}
-      {/* Click/touch on this wrapper triggers flap (only when playing).      */}
+      {/* Click/touch handled via native addEventListener in useEffect above. */}
       <div
+        ref={wrapperRef}
         className={`absolute inset-0 flex items-center justify-center bg-black
           ${screen === 'pregame' || screen === 'gameover' ? 'invisible pointer-events-none' : ''}`}
-        onClick={screen === 'playing' ? handlePointerDown : undefined}
-        onTouchStart={screen === 'playing' ? handlePointerDown : undefined}
         style={{ cursor: screen === 'playing' ? 'pointer' : 'default' }}
       >
         <GameCanvas ref={canvasRef} />
@@ -584,8 +601,6 @@ export default function FlappyBirdGame() {
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ zIndex: 15 }}
         >
-          {/* We read g.started from the ref each render cycle.
-              Once the user flaps we hide it by toggling the class. */}
           <div
             className="bg-black/60 rounded-2xl px-8 py-4 text-white text-center animate-pulse select-none"
             style={{
