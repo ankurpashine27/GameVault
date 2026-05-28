@@ -50,41 +50,50 @@ const GameCanvas = forwardRef(function GameCanvas({ onFlap, bgLayers, gameRef },
     },
   }), [])
 
-  // Input handlers
-  const handleClick = useCallback(() => { onFlap?.() }, [onFlap])
+  // Keep a ref to onFlap so keydown listener never goes stale
+  const onFlapRef = useRef(onFlap)
+  useEffect(() => { onFlapRef.current = onFlap }, [onFlap])
 
+  // Keyboard: Space / ArrowUp / Enter
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter') {
+        e.preventDefault()
+        onFlapRef.current?.()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])   // registered once; always reads latest onFlap via ref
+
+  // Click: whole container (covers letterbox bars)
+  const handleClick = useCallback((e) => {
+    // Ignore right-click
+    if (e.button !== undefined && e.button !== 0) return
+    onFlapRef.current?.()
+  }, [])
+
+  // Touch: whole container
   const handleTouch = useCallback((e) => {
     e.preventDefault()
-    onFlap?.()
-  }, [onFlap])
-
-  const handleKey = useCallback((e) => {
-    if (e.code === 'Space' || e.code === 'ArrowUp') {
-      e.preventDefault()
-      onFlap?.()
-    }
-  }, [onFlap])
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [handleKey])
+    onFlapRef.current?.()
+  }, [])
 
   return (
     <div
       className="flex items-center justify-center w-full h-full bg-black overflow-hidden"
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'none', cursor: 'pointer', userSelect: 'none' }}
+      onClick={handleClick}
+      onTouchStart={handleTouch}
     >
       <canvas
         ref={canvasRef}
         style={{
-          display:      'block',
+          display:        'block',
           imageRendering: 'pixelated',
-          cursor:       'pointer',
-          touchAction:  'none',
+          touchAction:    'none',
+          pointerEvents:  'none',   // let the outer div handle all input
         }}
-        onClick={handleClick}
-        onTouchStart={handleTouch}
       />
     </div>
   )

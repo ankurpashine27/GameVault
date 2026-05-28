@@ -60,10 +60,12 @@ export default function FlappyBirdGame() {
   } = useCollections()
 
   const audio = useAudio(settings)
-  const canvasRef = useRef(null)
+  const canvasRef   = useRef(null)
   const gameStateRef = useRef(null)
-  const rafRef  = useRef(null)
-  const lastTimeRef = useRef(null)
+  const rafRef       = useRef(null)
+  const lastTimeRef  = useRef(null)
+  // Ref-based mirror of `screen` so callbacks never have stale closure state
+  const screenRef    = useRef('pregame')
 
   // React state for HUD / overlays
   const [hudScore,      setHudScore]      = useState(0)
@@ -78,6 +80,9 @@ export default function FlappyBirdGame() {
   const [newAchievements,     setNewAchievements]      = useState([])
   const [newCollectionSets,   setNewCollectionSets]    = useState([])
   const [prevScreen,          setPrevScreen]           = useState('pregame')
+
+  // Keep screenRef in sync with screen state
+  useEffect(() => { screenRef.current = screen }, [screen])
 
   // ─── Init game world ──────────────────────────────────────────────────────
   const initGameState = useCallback(() => {
@@ -126,16 +131,15 @@ export default function FlappyBirdGame() {
   }, [settings, getCollectedItems, resetRun])
 
   // ─── Flap ─────────────────────────────────────────────────────────────────
+  // Uses screenRef (not state) so the callback is never stale no matter when called
   const handleFlap = useCallback(() => {
+    if (screenRef.current !== 'playing') return
     const g = gameStateRef.current
-    if (!g || screen === 'gameover' || screen === 'paused') return
-
-    if (screen !== 'playing') return
-
+    if (!g) return
     if (!g.started) g.started = true
     flapBird(g.bird)
     audio.play('flap')
-  }, [screen, audio])
+  }, [audio])
 
   // ─── Main game loop ───────────────────────────────────────────────────────
   const loop = useCallback((timestamp) => {
