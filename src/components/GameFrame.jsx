@@ -102,7 +102,7 @@ export default function GameFrame({ gameId, gameTitle, onClose }) {
 
       {/* Game area */}
       <div className="flex-1 w-full overflow-hidden">
-        {GameComponent ? <GameComponent /> : <ComingSoon gameTitle={gameTitle} />}
+        {GameComponent ? <GameComponent onClose={onClose} /> : <ComingSoon gameTitle={gameTitle} />}
       </div>
     </div>
   )

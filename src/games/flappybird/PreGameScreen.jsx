@@ -12,6 +12,7 @@ export default function PreGameScreen({
   onPlay,
   onLeaderboard,
   onAchievements,
+  onClose,
 }) {
   const { selectedSkin, selectedBg, musicTrack, sfxVolume, musicVolume } = settings
   const [tab, setTab] = useState('bird')   // 'bird' | 'bg' | 'audio'
@@ -49,7 +50,17 @@ export default function PreGameScreen({
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-sky-900 to-indigo-950 text-white overflow-y-auto">
       {/* Header */}
-      <div className="text-center pt-6 pb-2">
+      <div className="relative text-center pt-6 pb-2">
+        {onClose && (
+          <button
+            onClick={onClose}
+            title="Close game (Shift+Esc)"
+            className="absolute left-3 top-6 flex items-center gap-1.5 text-white/50 hover:text-white
+              transition-colors text-sm font-medium px-2 py-1 rounded-lg hover:bg-white/10"
+          >
+            ← Back
+          </button>
+        )}
         <div className="text-5xl mb-1">🐦</div>
         <h1 className="text-3xl font-black tracking-tight">Flappy Bird</h1>
         <p className="text-sky-300 text-sm mt-0.5">Best: <span className="font-bold text-white">{highScore}</span> · Games: <span className="font-bold text-white">{totalGames}</span></p>

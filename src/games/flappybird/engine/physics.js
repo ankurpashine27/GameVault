@@ -13,7 +13,7 @@ import { clamp, lerp, degToRad } from '../utils.js'
  */
 export function updateBird(bird, dt, timeScale = 1.0) {
   const sDt = dt * timeScale
-  bird.vy = clamp(bird.vy + GRAVITY * sDt, -FLAP_IMPULSE * 1.2, TERMINAL_VELOCITY)
+  bird.vy = clamp(bird.vy + GRAVITY * sDt, FLAP_IMPULSE * 1.2, TERMINAL_VELOCITY)
   bird.y  += bird.vy * sDt
 
   // Rotation: map velocity to angle

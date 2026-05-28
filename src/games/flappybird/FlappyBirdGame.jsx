@@ -38,7 +38,7 @@ import { todayStr } from './utils.js'
 // ─── Screens ──────────────────────────────────────────────────────────────────
 // 'pregame' | 'playing' | 'paused' | 'gameover' | 'leaderboard' | 'achievements' | 'collections'
 
-export default function FlappyBirdGame() {
+export default function FlappyBirdGame({ onClose }) {
   const [screen, setScreen] = useState('pregame')
   // screenRef is always in sync — updated synchronously before setScreen()
   // so any callback registered once ([] deps) reads the correct value
@@ -89,6 +89,10 @@ export default function FlappyBirdGame() {
   const [powerupTimer,  setPowerupTimer]  = useState(0)
   const [currentStage,  setCurrentStage]  = useState(STAGES[0])
   const [bgLayers,      setBgLayers]      = useState(() => generateBgLayers('day'))
+  // Tracks whether the bird has flapped at least once this run — used to hide
+  // the "Tap / Space" hint. Must be React state (not just g.started ref) so it
+  // triggers a re-render and the hint actually disappears.
+  const [gameStarted,   setGameStarted]   = useState(false)
 
   // ─── Game-over data ────────────────────────────────────────────────────────
   const [lastSummary,       setLastSummary]       = useState(null)
@@ -141,6 +145,7 @@ export default function FlappyBirdGame() {
     setActivePowerup(null)
     setPowerupTimer(0)
     setCurrentStage(STAGES[0])
+    setGameStarted(false)
   }, [settings, getCollectedItems, resetRun])
 
   // ─── Flap ─────────────────────────────────────────────────────────────────
@@ -150,7 +155,10 @@ export default function FlappyBirdGame() {
     if (screenRef.current !== 'playing') return
     const g = gameStateRef.current
     if (!g) return
-    if (!g.started) g.started = true
+    if (!g.started) {
+      g.started = true
+      setGameStarted(true)   // triggers re-render → hint fades out
+    }
     flapBird(g.bird)
     playAudio('flap')
   }, [playAudio])
@@ -595,19 +603,14 @@ export default function FlappyBirdGame() {
       )}
 
       {/* ── "Tap / Space to start" hint ─────────────────────────────────── */}
-      {screen === 'playing' && (
+      {/* Conditionally rendered (not just opacity) so animate-pulse can't    */}
+      {/* override the hidden state — CSS animations beat inline styles.      */}
+      {screen === 'playing' && !gameStarted && (
         <div
-          id="flappy-tap-hint"
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{ zIndex: 15 }}
         >
-          <div
-            className="bg-black/60 rounded-2xl px-8 py-4 text-white text-center animate-pulse select-none"
-            style={{
-              opacity: gameStateRef.current && !gameStateRef.current.started ? 1 : 0,
-              transition: 'opacity 0.2s',
-            }}
-          >
+          <div className="bg-black/60 rounded-2xl px-8 py-4 text-white text-center animate-pulse select-none">
             <div className="text-3xl mb-1">🐦</div>
             <div className="font-bold text-lg">Tap, Click, or Space</div>
             <div className="text-sm text-white/60 mt-1">Keep pressing to flap!</div>
@@ -642,6 +645,7 @@ export default function FlappyBirdGame() {
             onPlay={handlePlay}
             onLeaderboard={() => openOverlay('leaderboard')}
             onAchievements={() => openOverlay('achievements')}
+            onClose={onClose}
           />
         </div>
       )}
