@@ -54,5 +54,19 @@
     "releaseDate": "2025-05-28",
     "rating": 4.7,
     "featured": true
+  },
+  {
+    "id": "tetris",
+    "title": "Tetris",
+    "description": "Stack, clear, survive. The most iconic puzzle game ever made.",
+    "longDescription": "The definitive block-stacking game — with modern SRS rotation and classic NES mode, five game modes, T-spins, combos, perfect clears, eight block skins, eight parallax backgrounds, and procedural chiptune music that speeds up as you level up.",
+    "thumbnail": null,
+    "color": "from-purple-500 to-violet-700",
+    "tags": ["puzzle", "arcade", "casual", "single-player", "classic", "daily"],
+    "players": "1",
+    "difficulty": "Casual to Insane",
+    "releaseDate": "2024-01-01",
+    "rating": 4.9,
+    "featured": false
   }
 ]
