@@ -3,18 +3,40 @@ import Hero from '@/components/Hero'
 import CategoryRow from '@/components/CategoryRow'
 import games from '@/data/games.json'
 
-export default function Home({ favourites, onToggleFavourite, searchQuery }) {
-  const featuredGame = useMemo(() => games.find(g => g.featured) || games[0], [])
+export default function Home({ favourites, onToggleFavourite, searchQuery, playCounts = {} }) {
+  /* ── Hero carousel: featured first, then fill with top-rated ─────────── */
+  const heroGames = useMemo(() => {
+    const featured    = games.filter(g => g.featured)
+    const notFeatured = games.filter(g => !g.featured).sort((a, b) => b.rating - a.rating)
+    return [...featured, ...notFeatured]
+  }, [])
 
-  const popularGames = useMemo(() =>
-    [...games].sort((a, b) => b.rating - a.rating).slice(0, 6), [])
+  /* ── Popular: sort by actual play count, fall back to rating ─────────── */
+  const popularGames = useMemo(() => {
+    return [...games]
+      .sort((a, b) => {
+        const pa = playCounts[a.id] ?? 0
+        const pb = playCounts[b.id] ?? 0
+        if (pb !== pa) return pb - pa       // more plays first
+        return b.rating - a.rating          // tie-break by rating
+      })
+      .slice(0, 6)
+  }, [playCounts])
 
+  /* ── Recently Added: newest release date first ───────────────────────── */
   const recentGames = useMemo(() =>
-    [...games].sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate)).slice(0, 6), [])
+    [...games]
+      .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
+      .slice(0, 6),
+  [])
 
-  const favouriteGames = useMemo(() =>
-    games.filter(g => favourites.includes(g.id)), [favourites])
+  /* ── Favourites ──────────────────────────────────────────────────────── */
+  const favouriteGames = useMemo(
+    () => games.filter(g => favourites.includes(g.id)),
+    [favourites]
+  )
 
+  /* ── Tag-based rows (only tags shared by ≥2 games) ─────────────────── */
   const tagRows = useMemo(() => {
     const allTags = [...new Set(games.flatMap(g => g.tags))].sort()
     return allTags
@@ -22,37 +44,48 @@ export default function Home({ favourites, onToggleFavourite, searchQuery }) {
       .filter(row => row.games.length >= 2)
   }, [])
 
+  /* ── Derive popular section label ────────────────────────────────────── */
+  const hasPlayData   = Object.keys(playCounts).length > 0
+  const popularTitle  = hasPlayData ? '🔥 Most Played' : '🔥 Popular'
+  const recentTitle   = '🕐 Recently Added'
+
   const rowProps = { favourites, onToggleFavourite, searchQuery }
 
   return (
     <main className="pb-16">
+      {/* ── Hero carousel (hidden when searching) ── */}
       {!searchQuery && (
         <Hero
-          game={featuredGame}
-          isFavourite={favourites.includes(featuredGame?.id)}
+          games={heroGames}
+          favourites={favourites}
           onToggleFavourite={onToggleFavourite}
         />
       )}
 
-      <div className={`${searchQuery ? 'pt-24' : 'mt-4'}`}>
+      <div className={searchQuery ? 'pt-24' : 'mt-2'}>
         {searchQuery && (
           <p className="px-4 sm:px-8 mb-4 text-text-secondary text-sm">
-            Showing results for <span className="text-text-primary font-medium">"{searchQuery}"</span>
+            Showing results for{' '}
+            <span className="text-text-primary font-medium">"{searchQuery}"</span>
           </p>
         )}
 
-        <CategoryRow title="🔥 Popular" games={popularGames} {...rowProps} />
-        <CategoryRow title="🕐 Recently Added" games={recentGames} {...rowProps} />
+        {/* Popular / Most Played */}
+        <CategoryRow title={popularTitle} games={popularGames} {...rowProps} />
 
+        {/* Recently Added */}
+        <CategoryRow title={recentTitle} games={recentGames} {...rowProps} />
+
+        {/* Your Favourites */}
         {favouriteGames.length > 0 && (
           <CategoryRow
-            id="favourites"
             title="❤️ Your Favourites"
             games={favouriteGames}
             {...rowProps}
           />
         )}
 
+        {/* Tag-based rows */}
         {tagRows.map(({ tag, games: tagGames }) => (
           <CategoryRow
             key={tag}
