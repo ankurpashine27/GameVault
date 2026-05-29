@@ -46,7 +46,9 @@ export function checkWin(board, size, winLength) {
 }
 
 // ─── Candidate Move Generation (for large boards) ─────────────────────────────
-// Returns empty cells within `radius` squares of any existing piece
+// Returns empty cells within `radius` squares of any occupied cell.
+// `radius = 1` for 5×5 extended (keeps branching tight in early game),
+// `radius = 2` for 15×15 gomoku.
 export function getCandidateMoves(board, size, radius = 2) {
   const hasAny = board.some(row => row.some(c => c !== null))
   if (!hasAny) {
@@ -104,23 +106,72 @@ export function evaluateBoard(board, size, winLength, aiPlayer, humanPlayer) {
   return score
 }
 
+// ─── Move Ordering ────────────────────────────────────────────────────────────
+// Scores a move for sorting so best candidates are searched first in alpha-beta.
+// Priorities:  immediate win (100 000)  >  block opponent win (90 000)
+//              >  near-center positional bonus (0–1000)
+// Calling checkWin twice per candidate is O(n·winLen), cheap vs. the exponential
+// savings from better pruning.
+function moveOrderScore(board, size, winLength, r, c, player, opponent) {
+  board[r][c] = player
+  const winsNow = !!checkWin(board, size, winLength)
+  board[r][c] = null
+  if (winsNow) return 100000
+
+  board[r][c] = opponent
+  const blocksWin = !!checkWin(board, size, winLength)
+  board[r][c] = null
+  if (blocksWin) return 90000
+
+  // Positional: prefer cells closer to the centre of the board
+  const cen = (size - 1) / 2
+  return 1000 - Math.round((Math.abs(r - cen) + Math.abs(c - cen)) * 100)
+}
+
+// Sort a move list in-place by descending order-score (returns new array).
+function sortMoves(board, size, winLength, moves, player, opponent) {
+  return moves
+    .map(([r, c]) => ({ r, c, s: moveOrderScore(board, size, winLength, r, c, player, opponent) }))
+    .sort((a, b) => b.s - a.s)
+    .map(({ r, c }) => [r, c])
+}
+
 // ─── Minimax with Alpha-Beta Pruning ──────────────────────────────────────────
-export function minimax(board, size, winLength, depth, isMaximizing, alpha, beta, aiPlayer, humanPlayer, maxDepth, useCandidates) {
+export function minimax(
+  board, size, winLength,
+  depth, isMaximizing, alpha, beta,
+  aiPlayer, humanPlayer, maxDepth, useCandidates
+) {
   const result = checkWin(board, size, winLength)
   if (result?.winner === aiPlayer)    return 10000 + depth   // prefer faster wins
-  if (result?.winner === humanPlayer) return -10000 - depth  // disfavour faster losses
+  if (result?.winner === humanPlayer) return -10000 - depth  // avoid slower losses
   if (isBoardFull(board) || depth >= maxDepth) {
     return evaluateBoard(board, size, winLength, aiPlayer, humanPlayer)
   }
 
-  const moves = useCandidates ? getCandidateMoves(board, size) : getEmptyCells(board, size)
+  // Candidate radius: tight (1) for 5×5, wider (2) for 15×15
+  const radius = size <= 5 ? 1 : 2
+  let moves = useCandidates
+    ? getCandidateMoves(board, size, radius)
+    : getEmptyCells(board, size)
   if (moves.length === 0) return 0
+
+  // ── Move ordering at the top 3 ply levels ────────────────────────────────
+  // Alpha-beta prunes the most when best moves come first.  Sorting at depth<3
+  // catches the high-branching-factor nodes where it matters most; at deeper
+  // levels the additional checkWin calls outweigh the pruning benefit.
+  if (depth < 3 && moves.length > 2) {
+    const cur = isMaximizing ? aiPlayer : humanPlayer
+    const opp = isMaximizing ? humanPlayer : aiPlayer
+    moves = sortMoves(board, size, winLength, moves, cur, opp)
+  }
 
   if (isMaximizing) {
     let best = -Infinity
     for (const [r, c] of moves) {
       board[r][c] = aiPlayer
-      const val = minimax(board, size, winLength, depth + 1, false, alpha, beta, aiPlayer, humanPlayer, maxDepth, useCandidates)
+      const val = minimax(board, size, winLength, depth + 1, false, alpha, beta,
+        aiPlayer, humanPlayer, maxDepth, useCandidates)
       board[r][c] = null
       if (val > best) best = val
       if (best > alpha) alpha = best
@@ -131,7 +182,8 @@ export function minimax(board, size, winLength, depth, isMaximizing, alpha, beta
     let best = Infinity
     for (const [r, c] of moves) {
       board[r][c] = humanPlayer
-      const val = minimax(board, size, winLength, depth + 1, true, alpha, beta, aiPlayer, humanPlayer, maxDepth, useCandidates)
+      const val = minimax(board, size, winLength, depth + 1, true, alpha, beta,
+        aiPlayer, humanPlayer, maxDepth, useCandidates)
       board[r][c] = null
       if (val < best) best = val
       if (best < beta) beta = best
@@ -143,17 +195,19 @@ export function minimax(board, size, winLength, depth, isMaximizing, alpha, beta
 
 // ─── Get Best AI Move ─────────────────────────────────────────────────────────
 export function getBestMove(board, size, winLength, difficulty, aiPlayer, humanPlayer) {
-  const boardModeId = size === 3 ? 'classic' : size === 5 ? 'extended' : 'gomoku'
-  const useCandidates = size > 5
-  const empty = getEmptyCells(board, size)
+  const boardModeId    = size === 3 ? 'classic' : size === 5 ? 'extended' : 'gomoku'
+  // Use candidate moves for size ≥ 5 — stops the branching factor exploding on
+  // extended (5×5) and gomoku (15×15) boards.  (Previously only size > 5.)
+  const useCandidates  = size >= 5
+  const empty          = getEmptyCells(board, size)
   if (empty.length === 0) return null
 
-  // ── Easy: random
+  // ── Easy: random ──────────────────────────────────────────────────────────
   if (difficulty === 'easy') {
     return empty[Math.floor(Math.random() * empty.length)]
   }
 
-  // ── Medium: win → block → random
+  // ── Medium: win → block → random ─────────────────────────────────────────
   if (difficulty === 'medium') {
     for (const [r, c] of empty) {
       board[r][c] = aiPlayer
@@ -168,16 +222,33 @@ export function getBestMove(board, size, winLength, difficulty, aiPlayer, humanP
     return empty[Math.floor(Math.random() * empty.length)]
   }
 
-  // ── Hard / Unbeatable: minimax
+  // ── Hard / Unbeatable: minimax with alpha-beta ────────────────────────────
   const maxDepth = MINIMAX_DEPTH[difficulty]?.[boardModeId] ?? 4
-  const candidates = useCandidates ? getCandidateMoves(board, size) : getEmptyCells(board, size)
-  let bestVal = -Infinity
-  let bestMove = candidates[0]
-  for (const [r, c] of candidates) {
+
+  const radius     = size <= 5 ? 1 : 2
+  const candidates = useCandidates
+    ? getCandidateMoves(board, size, radius)
+    : getEmptyCells(board, size)
+
+  if (candidates.length === 0) return empty[0]
+  if (candidates.length === 1) return candidates[0]  // only one legal move
+
+  // Sort root candidates — essential for good alpha-beta pruning in the subtrees
+  const ordered = sortMoves(board, size, winLength, candidates, aiPlayer, humanPlayer)
+
+  let bestVal  = -Infinity
+  let bestMove = ordered[0]
+
+  for (const [r, c] of ordered) {
     board[r][c] = aiPlayer
-    const val = minimax(board, size, winLength, 0, false, -Infinity, Infinity, aiPlayer, humanPlayer, maxDepth, useCandidates)
+    const val = minimax(
+      board, size, winLength,
+      0, false, -Infinity, Infinity,
+      aiPlayer, humanPlayer, maxDepth, useCandidates
+    )
     board[r][c] = null
     if (val > bestVal) { bestVal = val; bestMove = [r, c] }
+    if (bestVal >= 10000) break   // found an immediate win — no need to keep searching
   }
   return bestMove
 }

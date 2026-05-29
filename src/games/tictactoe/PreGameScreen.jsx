@@ -2,6 +2,7 @@ import { useState } from 'react'
 import AvatarSelector from './AvatarSelector.jsx'
 import {
   BOARD_MODES, AI_DIFFICULTIES, SERIES_MODES, TIMER_OPTIONS,
+  BACKGROUNDS, MUSIC_TRACKS,
   P1_COLOR, P2_COLOR,
 } from './constants.js'
 
@@ -23,12 +24,49 @@ function RadioCard({ selected, onClick, children, accentColor }) {
           : 'border-vault-border bg-vault-elevated text-text-muted hover:text-text-secondary hover:border-vault-muted'
         }`}
       style={selected ? {
-        borderColor: accentColor,
+        borderColor:     accentColor,
         backgroundColor: accentColor + '18',
-        color: accentColor,
+        color:           accentColor,
       } : undefined}
     >
       {children}
+    </button>
+  )
+}
+
+// ─── Background swatch picker ─────────────────────────────────────────────────
+function BgSwatch({ bg, selected, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      title={bg.label}
+      className="relative flex flex-col items-center gap-1.5 group"
+    >
+      <div
+        className="w-10 h-10 rounded-lg border-2 transition-all duration-150 overflow-hidden"
+        style={{
+          backgroundColor: bg.bg,
+          borderColor:     selected ? bg.glow : 'rgba(30,45,69,0.8)',
+          boxShadow:       selected ? `0 0 10px ${bg.glow}66` : 'none',
+          transform:       selected ? 'scale(1.12)' : 'scale(1)',
+        }}
+      >
+        {/* Mini grid preview */}
+        <div className="w-full h-full flex items-center justify-center opacity-60">
+          <svg width="24" height="24" viewBox="0 0 24 24">
+            <line x1="8"  y1="2"  x2="8"  y2="22" stroke={bg.grid} strokeWidth="1" />
+            <line x1="16" y1="2"  x2="16" y2="22" stroke={bg.grid} strokeWidth="1" />
+            <line x1="2"  y1="8"  x2="22" y2="8"  stroke={bg.grid} strokeWidth="1" />
+            <line x1="2"  y1="16" x2="22" y2="16" stroke={bg.grid} strokeWidth="1" />
+          </svg>
+        </div>
+      </div>
+      <span
+        className="text-[9px] leading-none transition-colors duration-150"
+        style={{ color: selected ? bg.glow : '#64748B' }}
+      >
+        {bg.label}
+      </span>
     </button>
   )
 }
@@ -37,11 +75,14 @@ export default function PreGameScreen({
   p1Name, setP1Name, p2Name, setP2Name,
   p1Avatar, setP1Avatar, p2Avatar, setP2Avatar,
   settings, updateSettings,
-  onPlay, onLeaderboard,
+  onPlay, onLeaderboard, onClose,
 }) {
-  const [avatarPlayer, setAvatarPlayer] = useState(null) // null | 1 | 2
+  const [avatarPlayer, setAvatarPlayer] = useState(null)
 
-  const { boardMode, vsAI, aiDifficulty, seriesMode, powerupsOn, timerSeconds } = settings
+  const {
+    boardMode, vsAI, aiDifficulty, seriesMode, powerupsOn, timerSeconds,
+    background, musicTrack, musicVol, sfxVol,
+  } = settings
 
   const inputCls = `w-full bg-vault-elevated border border-vault-border rounded-lg px-3 py-2
     text-sm text-text-primary placeholder-text-muted
@@ -49,17 +90,39 @@ export default function PreGameScreen({
 
   return (
     <div className="flex flex-col h-full bg-vault-bg overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3
+
+      {/* Header
+           ← Back lives on the left.
+           🏆 Scores lives on the right BUT must clear the GameFrame's
+           control pill (~74 px wide at top-right).  We use right-24 (96 px)
+           so it never hides behind the fullscreen / close buttons.           */}
+      <div className="relative flex items-center justify-between px-4 py-3
         border-b border-vault-border flex-shrink-0 bg-vault-surface">
-        <h2 className="font-heading text-xl font-bold gradient-text">Tic-Tac-Toe</h2>
+
+        {/* Back button — left side, well clear of any overlay */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute left-3 top-1/2 -translate-y-1/2
+              flex items-center gap-1.5 text-white/50 hover:text-white
+              transition-colors text-sm font-medium px-2 py-1 rounded-lg hover:bg-white/10"
+            title="Back to GameVault"
+          >
+            ← Back
+          </button>
+        )}
+
+        <h2 className="font-heading text-xl font-bold gradient-text mx-auto">Tic-Tac-Toe</h2>
+
+        {/* right-24 = 96 px from edge — safely clears the GameFrame pill */}
         <button
           onClick={onLeaderboard}
-          className="text-xs text-text-muted hover:text-text-primary transition-colors
+          className="absolute right-24 top-1/2 -translate-y-1/2
+            text-xs text-text-muted hover:text-text-primary transition-colors
             flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-vault-border
             hover:border-vault-muted bg-vault-elevated"
         >
-          🏆 Leaderboard
+          🏆 Scores
         </button>
       </div>
 
@@ -67,7 +130,7 @@ export default function PreGameScreen({
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-lg mx-auto px-4 py-5 flex flex-col gap-6">
 
-          {/* Players */}
+          {/* ── Players ── */}
           <div>
             <SectionTitle>Players</SectionTitle>
             <div className="flex gap-3">
@@ -84,10 +147,8 @@ export default function PreGameScreen({
                     {p1Avatar}
                   </button>
                   <input
-                    value={p1Name}
-                    onChange={e => setP1Name(e.target.value)}
-                    maxLength={14}
-                    placeholder="Player 1"
+                    value={p1Name} onChange={e => setP1Name(e.target.value)}
+                    maxLength={14} placeholder="Player 1"
                     className={inputCls}
                     style={{ borderColor: avatarPlayer === 1 ? P1_COLOR : undefined }}
                   />
@@ -106,40 +167,33 @@ export default function PreGameScreen({
                     style={{
                       borderColor: avatarPlayer === 2 ? P2_COLOR : '#1E2D45',
                       opacity: vsAI ? 0.5 : 1,
-                      cursor: vsAI ? 'default' : 'pointer',
+                      cursor:  vsAI ? 'default' : 'pointer',
                     }}
                   >
                     {p2Avatar}
                   </button>
                   <input
-                    value={vsAI ? 'AI' : p2Name}
-                    onChange={e => !vsAI && setP2Name(e.target.value)}
-                    readOnly={vsAI}
-                    maxLength={14}
-                    placeholder="Player 2"
+                    value={vsAI ? 'AI' : p2Name} onChange={e => !vsAI && setP2Name(e.target.value)}
+                    readOnly={vsAI} maxLength={14} placeholder="Player 2"
                     className={inputCls}
-                    style={{
-                      opacity: vsAI ? 0.5 : 1,
-                      borderColor: avatarPlayer === 2 ? P2_COLOR : undefined,
-                    }}
+                    style={{ opacity: vsAI ? 0.5 : 1, borderColor: avatarPlayer === 2 ? P2_COLOR : undefined }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Avatar picker panel */}
             {avatarPlayer !== null && (
               <div className="bg-vault-elevated border border-vault-border rounded-xl p-3 animate-fadeIn">
                 <p className="text-xs text-text-muted mb-2">
-                  Choose avatar for <span className="font-medium" style={{ color: avatarPlayer === 1 ? P1_COLOR : P2_COLOR }}>
+                  Choose avatar for{' '}
+                  <span className="font-medium" style={{ color: avatarPlayer === 1 ? P1_COLOR : P2_COLOR }}>
                     {avatarPlayer === 1 ? p1Name : p2Name}
                   </span>
                 </p>
                 <AvatarSelector
                   selectedAvatar={avatarPlayer === 1 ? p1Avatar : p2Avatar}
                   onSelect={av => {
-                    if (avatarPlayer === 1) setP1Avatar(av)
-                    else setP2Avatar(av)
+                    if (avatarPlayer === 1) setP1Avatar(av); else setP2Avatar(av)
                     setAvatarPlayer(null)
                   }}
                   disabledAvatars={avatarPlayer === 1 ? [p2Avatar] : [p1Avatar]}
@@ -149,35 +203,22 @@ export default function PreGameScreen({
             )}
           </div>
 
-          {/* Game Mode */}
+          {/* ── Opponent ── */}
           <div>
             <SectionTitle>Opponent</SectionTitle>
             <div className="flex gap-2">
-              <RadioCard
-                selected={vsAI}
-                onClick={() => updateSettings({ vsAI: true })}
-                accentColor={P1_COLOR}
-              >
-                vs AI
-              </RadioCard>
-              <RadioCard
-                selected={!vsAI}
-                onClick={() => updateSettings({ vsAI: false })}
-                accentColor={P1_COLOR}
-              >
-                2 Players
-              </RadioCard>
+              <RadioCard selected={vsAI}  onClick={() => updateSettings({ vsAI: true  })} accentColor={P1_COLOR}>vs AI</RadioCard>
+              <RadioCard selected={!vsAI} onClick={() => updateSettings({ vsAI: false })} accentColor={P1_COLOR}>2 Players</RadioCard>
             </div>
           </div>
 
-          {/* AI Difficulty (only if vsAI) */}
+          {/* ── AI Difficulty ── */}
           {vsAI && (
             <div>
               <SectionTitle>AI Difficulty</SectionTitle>
               <div className="grid grid-cols-2 gap-2">
                 {Object.values(AI_DIFFICULTIES).map(d => (
-                  <button
-                    key={d.id}
+                  <button key={d.id}
                     onClick={() => updateSettings({ aiDifficulty: d.id })}
                     className={`px-3 py-2 rounded-lg border text-sm transition-all duration-150 text-left
                       ${aiDifficulty === d.id
@@ -193,13 +234,12 @@ export default function PreGameScreen({
             </div>
           )}
 
-          {/* Board Mode */}
+          {/* ── Board ── */}
           <div>
             <SectionTitle>Board</SectionTitle>
             <div className="flex flex-col gap-2">
               {Object.values(BOARD_MODES).map(m => (
-                <button
-                  key={m.id}
+                <button key={m.id}
                   onClick={() => updateSettings({ boardMode: m.id })}
                   className={`px-4 py-3 rounded-xl border text-sm transition-all duration-150 text-left
                     ${boardMode === m.id
@@ -214,41 +254,33 @@ export default function PreGameScreen({
             </div>
           </div>
 
-          {/* Series Mode */}
+          {/* ── Series ── */}
           <div>
             <SectionTitle>Series</SectionTitle>
             <div className="flex gap-2 flex-wrap">
               {SERIES_MODES.map(s => (
-                <RadioCard
-                  key={s.id}
-                  selected={seriesMode === s.id}
-                  onClick={() => updateSettings({ seriesMode: s.id })}
-                  accentColor={P1_COLOR}
-                >
+                <RadioCard key={s.id} selected={seriesMode === s.id}
+                  onClick={() => updateSettings({ seriesMode: s.id })} accentColor={P1_COLOR}>
                   {s.label}
                 </RadioCard>
               ))}
             </div>
           </div>
 
-          {/* Turn Timer */}
+          {/* ── Turn Timer ── */}
           <div>
             <SectionTitle>Turn Timer</SectionTitle>
             <div className="flex gap-2 flex-wrap">
               {TIMER_OPTIONS.map(t => (
-                <RadioCard
-                  key={t.value}
-                  selected={timerSeconds === t.value}
-                  onClick={() => updateSettings({ timerSeconds: t.value })}
-                  accentColor={P1_COLOR}
-                >
+                <RadioCard key={t.value} selected={timerSeconds === t.value}
+                  onClick={() => updateSettings({ timerSeconds: t.value })} accentColor={P1_COLOR}>
                   {t.label}
                 </RadioCard>
               ))}
             </div>
           </div>
 
-          {/* Power-ups */}
+          {/* ── Power-ups ── */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <SectionTitle>Power-ups</SectionTitle>
@@ -259,8 +291,7 @@ export default function PreGameScreen({
               >
                 <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow
                   transition-transform duration-200
-                  ${powerupsOn ? 'translate-x-5' : 'translate-x-0.5'}`}
-                />
+                  ${powerupsOn ? 'translate-x-5' : 'translate-x-0.5'}`} />
               </button>
             </div>
             {powerupsOn && (
@@ -271,6 +302,66 @@ export default function PreGameScreen({
                 <p className="text-text-muted/60 mt-1">Each power-up can be used once per game.</p>
               </div>
             )}
+          </div>
+
+          {/* ── Background ── */}
+          <div>
+            <SectionTitle>Background</SectionTitle>
+            <div className="flex gap-4 flex-wrap">
+              {Object.values(BACKGROUNDS).map(bg => (
+                <BgSwatch
+                  key={bg.id}
+                  bg={bg}
+                  selected={background === bg.id}
+                  onClick={() => updateSettings({ background: bg.id })}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* ── Music ── */}
+          <div>
+            <SectionTitle>Background Music</SectionTitle>
+            <div className="flex gap-2 flex-wrap mb-4">
+              {Object.values(MUSIC_TRACKS).map(t => (
+                <RadioCard
+                  key={t.id}
+                  selected={musicTrack === t.id}
+                  onClick={() => updateSettings({ musicTrack: t.id })}
+                  accentColor="#8B5CF6"
+                >
+                  {t.icon} {t.label}
+                </RadioCard>
+              ))}
+            </div>
+
+            {/* Volume sliders */}
+            <div className="space-y-3 bg-vault-elevated border border-vault-border rounded-xl p-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-text-secondary w-16 flex-shrink-0">Music</span>
+                <input
+                  type="range" min="0" max="1" step="0.05"
+                  value={musicVol}
+                  onChange={e => updateSettings({ musicVol: parseFloat(e.target.value) })}
+                  className="flex-1 accent-purple-500 h-1.5 cursor-pointer"
+                />
+                <span className="text-xs text-text-muted w-8 text-right">
+                  {Math.round((musicVol ?? 0.35) * 100)}%
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-text-secondary w-16 flex-shrink-0">Effects</span>
+                <input
+                  type="range" min="0" max="1" step="0.05"
+                  value={sfxVol}
+                  onChange={e => updateSettings({ sfxVol: parseFloat(e.target.value) })}
+                  className="flex-1 accent-blue-500 h-1.5 cursor-pointer"
+                />
+                <span className="text-xs text-text-muted w-8 text-right">
+                  {Math.round((sfxVol ?? 1) * 100)}%
+                </span>
+              </div>
+            </div>
           </div>
 
           <div className="pb-2" />

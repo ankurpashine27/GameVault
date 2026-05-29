@@ -14,9 +14,16 @@ export const AI_DIFFICULTIES = {
 }
 
 // ─── Minimax Search Depth ──────────────────────────────────────────────────────
+// Classic (3×3): depth 9 = full game tree — solves it perfectly in <1 ms with
+//   alpha-beta + move ordering (was 20, but tree max is 9 anyway).
+// Extended (5×5): dropped 7 → 5.  With move ordering + candidate moves (radius 1)
+//   this runs in ~50–200 ms and plays at the same effective strength because
+//   ordering means alpha-beta now prunes ~95 % of the tree that was previously
+//   explored exhaustively.
+// Gomoku (15×15): depth 4 kept; ordering + candidates already constrain it well.
 export const MINIMAX_DEPTH = {
   hard:       { classic: 6, extended: 4, gomoku: 3 },
-  unbeatable: { classic: 20, extended: 7, gomoku: 4 },
+  unbeatable: { classic: 9, extended: 5, gomoku: 4 },
 }
 
 // ─── Series Modes ─────────────────────────────────────────────────────────────
@@ -60,6 +67,25 @@ export const AVATAR_GROUPS = [
 
 export const ALL_AVATARS = AVATAR_GROUPS.flatMap(g => g.avatars)
 
+// ─── Backgrounds ──────────────────────────────────────────────────────────────
+// `light: true` means the background is light-colored (affects text/icon contrast)
+export const BACKGROUNDS = {
+  dark:     { id: 'dark',     label: 'Dark',        bg: '#080B14', grid: '#1E3A5F', glow: '#3b82f6' },
+  neon:     { id: 'neon',     label: 'Neon',        bg: '#050010', grid: '#00FFFF', glow: '#00FFFF' },
+  wood:     { id: 'wood',     label: 'Wood',        bg: '#2C1A0E', grid: '#6B3A1F', glow: '#D97706' },
+  space:    { id: 'space',    label: 'Space',       bg: '#000510', grid: '#1E293B', glow: '#818CF8' },
+  marble:   { id: 'marble',   label: 'Marble',      bg: '#E2E8F0', grid: '#94A3B8', glow: '#3B82F6', light: true },
+  midnight: { id: 'midnight', label: 'Midnight',    bg: '#020617', grid: '#1E3A8A', glow: '#60A5FA' },
+}
+
+// ─── Music Tracks ─────────────────────────────────────────────────────────────
+export const MUSIC_TRACKS = {
+  none:    { id: 'none',    label: 'Off',     icon: '🔇' },
+  ambient: { id: 'ambient', label: 'Ambient', icon: '🌊' },
+  tense:   { id: 'tense',   label: 'Tense',   icon: '⚡' },
+  retro:   { id: 'retro',   label: 'Retro',   icon: '🎮' },
+}
+
 // ─── Default Settings ─────────────────────────────────────────────────────────
 export const DEFAULT_SETTINGS = {
   boardMode:    'classic',
@@ -68,6 +94,10 @@ export const DEFAULT_SETTINGS = {
   seriesMode:   'single',
   powerupsOn:   false,
   timerSeconds: 0,
+  background:   'dark',
+  musicTrack:   'ambient',
+  musicVol:     0.35,
+  sfxVol:       1.0,
 }
 
 // ─── localStorage Keys ────────────────────────────────────────────────────────

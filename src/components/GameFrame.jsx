@@ -71,33 +71,41 @@ export default function GameFrame({ gameId, gameTitle, onClose }) {
       className="fixed inset-0 z-[9999] bg-black flex flex-col"
       onMouseMove={showBar}>
 
-      {/* Top bar */}
-      <div className={`absolute top-0 left-0 right-0 z-10
-        flex items-center justify-between px-4 py-3
-        transition-all duration-300 ease-in-out
-        ${barVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3 pointer-events-none'}`}
-        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%)' }}>
-
-        <span className="font-heading text-base sm:text-lg font-semibold text-white truncate max-w-[50vw]">
+      {/* Top-left: game title — fades in/out on mouse activity */}
+      <div
+        className={`absolute top-0 left-0 z-10 px-4 py-3
+          transition-all duration-300 ease-in-out pointer-events-none
+          ${barVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+        style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.70) 0%, transparent 80%)' }}
+      >
+        <span className="font-heading text-sm sm:text-base font-semibold text-white/90
+          truncate block max-w-[45vw] drop-shadow">
           {gameTitle}
         </span>
+      </div>
 
-        <div className="flex items-center gap-1">
-          <button
-            onClick={toggleFullscreen}
-            title={`${isFullscreen ? 'Exit' : 'Enter'} Fullscreen (F11)`}
-            className="text-white/70 hover:text-white transition-colors duration-150
-              px-3 py-2 rounded-lg hover:bg-white/10 text-lg leading-none">
-            {isFullscreen ? '⊡' : '⛶'}
-          </button>
-          <button
-            onClick={onClose}
-            title="Close (Shift+Esc)"
-            className="text-white/70 hover:text-white transition-colors duration-150
-              px-3 py-2 rounded-lg hover:bg-white/10 text-lg leading-none font-light">
-            ✕
-          </button>
-        </div>
+      {/* Top-right: always-visible compact control pill */}
+      {/* Uses a small pill so it never overlaps a game's own HUD buttons */}
+      <div className="absolute top-2 right-2 z-20 flex items-center gap-0.5
+        bg-black/50 backdrop-blur-sm border border-white/10 rounded-xl
+        px-1 py-1 transition-opacity duration-300"
+        style={{ opacity: barVisible ? 1 : 0.25 }}
+        onMouseEnter={() => setBarVisible(true)}
+      >
+        <button
+          onClick={toggleFullscreen}
+          title={`${isFullscreen ? 'Exit' : 'Enter'} Fullscreen (F11)`}
+          className="text-white/60 hover:text-white transition-colors duration-150
+            w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 text-sm leading-none">
+          {isFullscreen ? '⊡' : '⛶'}
+        </button>
+        <button
+          onClick={onClose}
+          title="Close (Shift+Esc)"
+          className="text-white/60 hover:text-white transition-colors duration-150
+            w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 text-sm leading-none font-light">
+          ✕
+        </button>
       </div>
 
       {/* Game area */}
