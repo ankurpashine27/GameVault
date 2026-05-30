@@ -56,6 +56,20 @@
     "featured": true
   },
   {
+    "id": "game2048",
+    "title": "2048",
+    "description": "Slide and merge tiles to reach 2048. Simple rules, deep strategy.",
+    "longDescription": "The iconic number-merging puzzle — rebuilt with five grid sizes, six game modes, themed tile sets, color palettes, animated score popups, a daily challenge, achievements, and calm procedural music for long thinking sessions.",
+    "thumbnail": null,
+    "color": "from-amber-300 to-yellow-500",
+    "tags": ["puzzle", "casual", "single-player", "strategy", "daily"],
+    "players": "1",
+    "difficulty": "Easy to Brutal",
+    "releaseDate": "2024-01-01",
+    "rating": 4.7,
+    "featured": false
+  },
+  {
     "id": "tetris",
     "title": "Tetris",
     "description": "Stack, clear, survive. The most iconic puzzle game ever made.",

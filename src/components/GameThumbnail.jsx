@@ -281,6 +281,59 @@ function NexusThumbnail() {
   )
 }
 
+/* ── 2048 ────────────────────────────────────────────────────────────────── */
+function Game2048Thumbnail() {
+  // 2×2 mini grid of golden tiles with numbers 2, 4, 8, 2048
+  const tiles = [
+    { x: 38,  y: 18, w: 36, h: 36, val: '2',    bg: '#eee4da', fg: '#776e65' },
+    { x: 82,  y: 18, w: 36, h: 36, val: '4',    bg: '#ede0c8', fg: '#776e65' },
+    { x: 38,  y: 62, w: 36, h: 36, val: '8',    bg: '#f2b179', fg: '#f9f6f2' },
+    { x: 82,  y: 62, w: 36, h: 36, val: '2048', bg: '#edc22e', fg: '#f9f6f2' },
+  ]
+  return (
+    <svg viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg"
+      className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="g2bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#7c4f00"/>
+          <stop offset="100%" stopColor="#3d2600"/>
+        </linearGradient>
+      </defs>
+      <rect width="160" height="90" fill="url(#g2bg)"/>
+      {/* Board */}
+      <rect x={30} y={10} width={96} height={72} rx={6} fill="#bbada0"/>
+      {/* Tiles */}
+      {tiles.map((t, i) => (
+        <g key={i}>
+          <rect x={t.x} y={t.y} width={t.w} height={t.h} rx={4} fill={t.bg}/>
+          <rect x={t.x+1} y={t.y+1} width={t.w-2} height={t.h*0.35} rx={2} fill="#fff" opacity="0.2"/>
+          <text
+            x={t.x + t.w/2} y={t.y + t.h/2 + 1}
+            fill={t.fg}
+            fontFamily="'Segoe UI', Arial, sans-serif"
+            fontSize={t.val.length > 2 ? 8 : 12}
+            fontWeight="bold"
+            textAnchor="middle"
+            dominantBaseline="middle"
+          >{t.val}</text>
+        </g>
+      ))}
+      {/* Right side info */}
+      <text x="144" y="20" fill="#edc22e" fontFamily="monospace" fontSize="8"
+        fontWeight="bold" textAnchor="middle" opacity="0.9">2048</text>
+      <text x="144" y="35" fill="#fff" fontFamily="monospace" fontSize="6"
+        textAnchor="middle" opacity="0.5">SCORE</text>
+      <text x="144" y="44" fill="#fff" fontFamily="monospace" fontSize="7"
+        fontWeight="bold" textAnchor="middle" opacity="0.7">4096</text>
+      {/* Stars */}
+      {[0,1,2,3].map(i => (
+        <text key={i} x={134 + i*5} y={75} fill="#edc22e" fontSize="6"
+          opacity={0.4 + i*0.1}>★</text>
+      ))}
+    </svg>
+  )
+}
+
 /* ── Default (fallback for unlisted game IDs) ────────────────────────────── */
 function DefaultThumbnail() {
   return (
@@ -300,6 +353,7 @@ const THUMBNAIL_MAP = {
   flappybird: FlappyBirdThumbnail,
   tictactoe:  TicTacToeThumbnail,
   nexus:      NexusThumbnail,
+  game2048:   Game2048Thumbnail,
 }
 
 export default function GameThumbnail({ gameId }) {
