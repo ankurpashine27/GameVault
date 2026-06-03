@@ -37,7 +37,7 @@ export default function Footer() {
                 <p className="text-text-muted uppercase tracking-wider text-xs font-medium mb-1">More</p>
                 <a href="/game/flappybird" className="text-text-secondary hover:text-text-primary transition-colors">Flappy Bird</a>
                 <a href="/game/nexus" className="text-text-secondary hover:text-text-primary transition-colors">Nexus</a>
-                <a href="/game/tictactoe" className="text-text-secondary hover:text-text-primary transition-colors">Tic-Tac-Toe</a>
+                <a href="/reviews" className="text-text-secondary hover:text-text-primary transition-colors">Reviews</a>
               </div>
             </div>
           </div>

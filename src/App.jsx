@@ -4,6 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Home from "@/pages/Home";
 import GamePage from "@/pages/GamePage";
+import ReviewsPage from "@/pages/ReviewsPage";
+import ReviewDetail from "@/pages/ReviewDetail";
 import { Analytics } from "@vercel/analytics/react";
 
 const LS_FAVS   = "gamevault_favourites";
@@ -76,6 +78,8 @@ export default function App() {
               />
             }
           />
+          <Route path="/reviews" element={<ReviewsPage />} />
+          <Route path="/reviews/:id" element={<ReviewDetail />} />
         </Routes>
       </div>
 

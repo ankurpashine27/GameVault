@@ -334,6 +334,65 @@ function Game2048Thumbnail() {
   )
 }
 
+/* ── Pulse Rush (geodash) ─────────────────────────────────────────────────── */
+function PulseRushThumbnail() {
+  const groundY = 64
+  return (
+    <svg viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg"
+      className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="prBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1a0822"/>
+          <stop offset="100%" stopColor="#0a0410"/>
+        </linearGradient>
+        <linearGradient id="prCube" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#5ee7ff"/>
+          <stop offset="100%" stopColor="#2aa6ff"/>
+        </linearGradient>
+      </defs>
+      <rect width="160" height="90" fill="url(#prBg)"/>
+      {/* Parallax perspective grid */}
+      {[...Array(13)].map((_, i) => (
+        <line key={`pv${i}`} x1={i * 13} y1={groundY} x2={i * 13 - 40} y2={90}
+          stroke="#ff4fd8" strokeWidth="0.5" opacity="0.16"/>
+      ))}
+      {[...Array(4)].map((_, i) => (
+        <line key={`ph${i}`} x1={0} y1={groundY + i * 8} x2={160} y2={groundY + i * 8}
+          stroke="#ff4fd8" strokeWidth="0.4" opacity="0.12"/>
+      ))}
+      {/* Floating accent triangles (parallax) */}
+      <polygon points="128,18 134,30 122,30" fill="none" stroke="#7c3aed" strokeWidth="1" opacity="0.4"/>
+      <polygon points="30,24 35,34 25,34" fill="none" stroke="#39d0ff" strokeWidth="1" opacity="0.3"/>
+      {/* Ground bar */}
+      <rect x={0} y={groundY} width={160} height={26} fill="#1c0b2a"/>
+      <line x1={0} y1={groundY} x2={160} y2={groundY} stroke="#39d0ff" strokeWidth="1.5"/>
+      {/* Spikes ahead */}
+      {[96, 110, 124].map((x, i) => (
+        <polygon key={i} points={`${x - 6},${groundY} ${x + 6},${groundY} ${x},${groundY - 11}`}
+          fill="#ff4fd8" stroke="#a11d8a" strokeWidth="0.6"/>
+      ))}
+      {/* Portal gate */}
+      <ellipse cx={146} cy={groundY - 14} rx={6} ry={14} fill="none" stroke="#b06bff" strokeWidth="1.6" opacity="0.9"/>
+      <ellipse cx={146} cy={groundY - 14} rx={6} ry={14} fill="#b06bff" opacity="0.15"/>
+      {/* Jump trail */}
+      {[[40, 54], [46, 48], [52, 44], [58, 42]].map(([x, y], i) => (
+        <rect key={i} x={x} y={y} width={4} height={4} rx={1} fill="#5ee7ff" opacity={0.15 + i * 0.12}/>
+      ))}
+      {/* Player cube on the ground, mid-hop */}
+      <g>
+        <rect x={62} y={groundY - 15} width={15} height={15} rx={3} fill="url(#prCube)"
+          stroke="#bff6ff" strokeWidth="1"/>
+        <circle cx={69.5} cy={groundY - 7.5} r={2.4} fill="#0a2942"/>
+      </g>
+      {/* Title */}
+      <text x="8" y="15" fill="#5ee7ff" fontFamily="monospace" fontSize="9"
+        fontWeight="bold">PULSE</text>
+      <text x="8" y="25" fill="#ff4fd8" fontFamily="monospace" fontSize="9"
+        fontWeight="bold">RUSH</text>
+    </svg>
+  )
+}
+
 /* ── Default (fallback for unlisted game IDs) ────────────────────────────── */
 function DefaultThumbnail() {
   return (
@@ -354,6 +413,7 @@ const THUMBNAIL_MAP = {
   tictactoe:  TicTacToeThumbnail,
   nexus:      NexusThumbnail,
   game2048:   Game2048Thumbnail,
+  geodash:    PulseRushThumbnail,
 }
 
 export default function GameThumbnail({ gameId }) {

@@ -82,5 +82,19 @@
     "releaseDate": "2024-01-01",
     "rating": 4.9,
     "featured": false
+  },
+  {
+    "id": "geodash",
+    "title": "Pulse Rush",
+    "description": "Run, jump, fly and flip through beat-synced levels. One tap. Zero mercy.",
+    "longDescription": "A rhythm-based platformer with 20 handcrafted levels, 8 player forms with unique physics, beat-synced obstacles, a full 120-icon customization kit, practice mode with checkpoints, and an infinite procedural run that never ends. Every obstacle lands on the beat of its own procedurally generated track.",
+    "thumbnail": null,
+    "color": "from-rose-500 to-fuchsia-900",
+    "tags": ["arcade", "rhythm", "platformer", "single-player", "reflex", "music"],
+    "players": "1",
+    "difficulty": "Auto to Demon",
+    "releaseDate": "2024-01-01",
+    "rating": 4.9,
+    "featured": true
   }
 ]

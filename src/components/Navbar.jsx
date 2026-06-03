@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 export default function Navbar({ favouriteCount, searchQuery, onSearchChange }) {
   const [scrolled, setScrolled] = useState(false)
@@ -61,6 +61,19 @@ export default function Navbar({ favouriteCount, searchQuery, onSearchChange }) 
             )}
           </div>
         </div>
+
+        {/* Reviews tab */}
+        <NavLink
+          to="/reviews"
+          title="Community reviews & feedback"
+          className={({ isActive }) => `flex-shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-lg
+            text-sm font-medium transition-colors duration-200
+            ${isActive
+              ? 'text-white bg-vault-surface'
+              : 'text-text-secondary hover:text-text-primary hover:bg-vault-surface'}`}>
+          <span className="text-base leading-none">💬</span>
+          <span className="hidden sm:block">Reviews</span>
+        </NavLink>
 
         {/* Favourites button */}
         <button

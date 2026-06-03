@@ -38,6 +38,7 @@ import Nexus from './nexus/index.jsx'
 import FlappyBird from './flappybird/index.jsx'
 import Tetris from './tetris/index.jsx'
 import Game2048 from './game2048/index.jsx'
+import GeoDash from './geodash/index.jsx'
 
 export const gameRegistry = {
   'snake':       Snake,
@@ -46,6 +47,7 @@ export const gameRegistry = {
   'flappybird':  FlappyBird,
   'tetris':      Tetris,
   'game2048':    Game2048,
+  'geodash':     GeoDash,
   // Uncomment as games are implemented:
   // 'memory-match': MemoryMatch,
   // 'pong':         Pong,
