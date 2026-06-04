@@ -39,6 +39,7 @@ import FlappyBird from './flappybird/index.jsx'
 import Tetris from './tetris/index.jsx'
 import Game2048 from './game2048/index.jsx'
 import GeoDash from './geodash/index.jsx'
+import FPS from './fps/index.jsx'
 
 export const gameRegistry = {
   'snake':       Snake,
@@ -48,6 +49,7 @@ export const gameRegistry = {
   'tetris':      Tetris,
   'game2048':    Game2048,
   'geodash':     GeoDash,
+  'fps':         FPS,
   // Uncomment as games are implemented:
   // 'memory-match': MemoryMatch,
   // 'pong':         Pong,

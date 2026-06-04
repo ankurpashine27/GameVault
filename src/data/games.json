@@ -96,5 +96,19 @@
     "releaseDate": "2024-01-01",
     "rating": 4.9,
     "featured": true
+  },
+  {
+    "id": "fps",
+    "title": "Grimhold",
+    "description": "Survive the horrors of Castle Dread. One hunter. Countless nightmares.",
+    "longDescription": "A retro first-person shooter powered by a pure HTML5 Canvas raycasting engine — no WebGL, no images. Battle cultists, undead, demons and towering bosses across 3 gothic horror episodes and an endless procedural mode. Unlock and upgrade 8 weapons, find secrets, and descend into Castle Dread.",
+    "thumbnail": null,
+    "color": "from-red-900 to-stone-950",
+    "tags": ["fps", "shooter", "horror", "arcade", "single-player", "action"],
+    "players": "1",
+    "difficulty": "Easy to Nightmare",
+    "releaseDate": "2024-01-01",
+    "rating": 4.9,
+    "featured": true
   }
 ]

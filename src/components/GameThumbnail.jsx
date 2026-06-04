@@ -393,6 +393,77 @@ function PulseRushThumbnail() {
   )
 }
 
+/* ── Grimhold (fps) ───────────────────────────────────────────────────────── */
+function GrimholdThumbnail() {
+  // A first-person raycast view: ceiling/floor, perspective stone corridor with
+  // converging walls, a torch, a lurking enemy, and a weapon at the bottom.
+  const cx = 80, horizon = 42
+  return (
+    <svg viewBox="0 0 160 90" xmlns="http://www.w3.org/2000/svg"
+      className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="ghCeil" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1a1116"/><stop offset="100%" stopColor="#070409"/>
+        </linearGradient>
+        <linearGradient id="ghFloor" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#120a0a"/><stop offset="100%" stopColor="#2a1c18"/>
+        </linearGradient>
+        <radialGradient id="ghTorch" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ffd27a"/><stop offset="60%" stopColor="#ff7a1a"/><stop offset="100%" stopColor="rgba(255,90,0,0)"/>
+        </radialGradient>
+      </defs>
+      {/* Ceiling + floor */}
+      <rect x="0" y="0" width="160" height={horizon} fill="url(#ghCeil)"/>
+      <rect x="0" y={horizon} width="160" height={90 - horizon} fill="url(#ghFloor)"/>
+      {/* Far wall (vanishing) */}
+      <rect x="58" y={horizon - 8} width="44" height="20" fill="#2a2026"/>
+      {/* Left wall — perspective trapezoid with brick rows */}
+      <polygon points={`0,0 58,${horizon - 8} 58,${horizon + 12} 0,90`} fill="#4a4048"/>
+      <polygon points={`0,0 58,${horizon - 8} 58,${horizon + 12} 0,90`} fill="none" stroke="#2a2329" strokeWidth="0.5"/>
+      {[0.25, 0.5, 0.75].map((t, i) => (
+        <line key={`l${i}`} x1="0" y1={90 * t} x2="58" y2={(horizon - 8) + 20 * t} stroke="#2a2329" strokeWidth="0.6"/>
+      ))}
+      <line x1="22" y1="0" x2="42" y2={horizon - 4} stroke="#2a2329" strokeWidth="0.6"/>
+      {/* Right wall */}
+      <polygon points={`160,0 102,${horizon - 8} 102,${horizon + 12} 160,90`} fill="#3e353d"/>
+      <polygon points={`160,0 102,${horizon - 8} 102,${horizon + 12} 160,90`} fill="none" stroke="#241e24" strokeWidth="0.5"/>
+      {[0.25, 0.5, 0.75].map((t, i) => (
+        <line key={`r${i}`} x1="160" y1={90 * t} x2="102" y2={(horizon - 8) + 20 * t} stroke="#241e24" strokeWidth="0.6"/>
+      ))}
+      <line x1="138" y1="0" x2="118" y2={horizon - 4} stroke="#241e24" strokeWidth="0.6"/>
+      {/* Torch glow on left wall */}
+      <circle cx="34" cy="30" r="14" fill="url(#ghTorch)" opacity="0.85"/>
+      <rect x="33" y="28" width="2" height="9" fill="#3a2818"/>
+      <ellipse cx="34" cy="25" rx="2.5" ry="4.5" fill="#ffd27a"/>
+      {/* Lurking enemy silhouette down the corridor (glowing eyes) */}
+      <g>
+        <rect x="73" y={horizon - 4} width="14" height="18" rx="2" fill="#14080c"/>
+        <ellipse cx="80" cy={horizon - 6} rx="7" ry="6" fill="#14080c"/>
+        <circle cx="77.5" cy={horizon - 6} r="1.3" fill="#ff2b2b"/>
+        <circle cx="82.5" cy={horizon - 6} r="1.3" fill="#ff2b2b"/>
+      </g>
+      {/* Weapon (flintlock) bottom-right */}
+      <g>
+        <rect x="104" y="74" width="30" height="9" rx="1.5" fill="#2b2b30"/>
+        <rect x="100" y="78" width="18" height="14" rx="2" fill="#5a3d24"/>
+        <rect x="126" y="71" width="9" height="6" fill="#444"/>
+      </g>
+      {/* Crosshair */}
+      <g stroke="rgba(255,255,255,0.7)" strokeWidth="1">
+        <line x1={cx - 5} y1={horizon + 4} x2={cx - 2} y2={horizon + 4}/>
+        <line x1={cx + 2} y1={horizon + 4} x2={cx + 5} y2={horizon + 4}/>
+        <line x1={cx} y1={horizon - 1} x2={cx} y2={horizon + 2}/>
+        <line x1={cx} y1={horizon + 6} x2={cx} y2={horizon + 9}/>
+      </g>
+      {/* Title */}
+      <text x="8" y="14" fill="#e23030" fontFamily="serif" fontSize="11"
+        fontWeight="bold" letterSpacing="1" style={{ textShadow: '0 0 4px #800' }}>GRIMHOLD</text>
+      {/* Vignette */}
+      <rect x="0" y="0" width="160" height="90" fill="none" stroke="#000" strokeWidth="8" opacity="0.35"/>
+    </svg>
+  )
+}
+
 /* ── Default (fallback for unlisted game IDs) ────────────────────────────── */
 function DefaultThumbnail() {
   return (
@@ -414,6 +485,7 @@ const THUMBNAIL_MAP = {
   nexus:      NexusThumbnail,
   game2048:   Game2048Thumbnail,
   geodash:    PulseRushThumbnail,
+  fps:        GrimholdThumbnail,
 }
 
 export default function GameThumbnail({ gameId }) {
